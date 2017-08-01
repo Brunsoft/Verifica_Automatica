@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FlickrApp</string>
+    <string name="insert_string">Search...</string>
+    <string name="button_search_str">Search</string>
+    <string name="button_search_last">Last Uploaded Pic</string>
+    <string name="button_search_top">Popular Pic</string>
+    <string name="share_button">Share</string>
+</resources>
