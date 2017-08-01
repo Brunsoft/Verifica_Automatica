@@ -20,8 +20,18 @@ public class Controller {
     }
 
     @UiThread
+    public void viewPictureSel(Context context) {
+        SearchService.viewPictureSel(context);
+    }
+
+    @UiThread
     public void showResults() {
         mvc.forEachView(View::showResults);
+    }
+
+    @UiThread
+    public void showPictureFhd() {
+        mvc.forEachView(View::showPictureFhd);
     }
 
 }

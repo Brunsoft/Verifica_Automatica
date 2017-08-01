@@ -1,7 +1,6 @@
 package it.univr.android.flickrapp.model;
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.Immutable;
@@ -13,8 +12,6 @@ import java.util.LinkedList;
 
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.view.View;
-
-import static android.R.attr.author;
 
 @ThreadSafe
 public class Model {
@@ -30,17 +27,18 @@ public class Model {
         private final String id;
         private final String title;
         private final String author;
-        private final String url_s;
-        private final String url_z;
+        private final String url_sq;
+        private final String url_l;
         private final Bitmap img_thmb;
+        private Bitmap img_fhd;
         private final LinkedList<CommentImg> commentList;
 
-        public ImgInfo(String id, String title, String author, String url_s, String url_z, Bitmap bmp) {
+        public ImgInfo(String id, String title, String author, String url_sq, String url_l, Bitmap bmp) {
             this.id = id;
             this.title = title;
             this.author = author;
-            this.url_s = url_s;
-            this.url_z = url_z;
+            this.url_sq = url_sq;
+            this.url_l = url_l;
             this.img_thmb = bmp;
             this.commentList = new LinkedList<>();
         }
@@ -57,12 +55,20 @@ public class Model {
             return author;
         }
 
-        public String getUrl(){
-            return url_s;
+        public String getUrl_sq(){
+            return url_sq;
+        }
+
+        public String getUrl_l(){
+            return url_l;
         }
 
         public Bitmap getThmb(){
             return img_thmb;
+        }
+
+        public Bitmap getPicFhd(){
+            return img_fhd;
         }
 
         public CommentImg[] getComments() {
@@ -73,7 +79,7 @@ public class Model {
 
         @Override
         public String toString() {
-            return title + "\n" + author + "\n" + url_z;
+            return title + "\n" + author + "\n" + url_l;
         }
 
     }
@@ -128,12 +134,17 @@ public class Model {
         mvc.forEachView(View::onModelChanged);
     }
 
-    public void storeComments(Iterable<CommentImg> commentList, int pos) {
+    public void storeComments(Iterable<CommentImg> commentList, Bitmap img_fhd, int pos) {
         synchronized (this.results.get(pos).commentList) {
-
             for (CommentImg comment: commentList)
                 this.results.get(pos).commentList.add(comment);
         }
+        if (this.results.get(pos).img_fhd == null)
+            this.results.get(pos).img_fhd = img_fhd;
+        else
+            synchronized (this.results.get(pos).img_fhd){
+                this.results.get(pos).img_fhd = img_fhd;
+            }
 
         this.mvc.forEachView(View::onModelChanged);
     }
@@ -153,7 +164,7 @@ public class Model {
     }
 
     public ImgInfo getResult(int pos) {
-        synchronized (this.results) {
+        synchronized (this.results)  {
             return this.results.get(pos);
         }
     }

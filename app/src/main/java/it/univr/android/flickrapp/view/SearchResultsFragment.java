@@ -50,7 +50,14 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
             Model.ImgInfo imgInfo = imgInfos[position];
             ((ImageView) row.findViewById(R.id.icon)).setImageBitmap(imgInfo.getThmb());
             ((TextView) row.findViewById(R.id.title)).setText(imgInfo.getTitle());
+            row.setOnClickListener(__->viewImageSel(position));
             return row;
+        }
+
+        private void viewImageSel(int position){
+            mvc.model.setImageSel(position);
+            mvc.controller.viewPictureSel(getActivity());
+            mvc.controller.showPictureFhd();
         }
 
     }

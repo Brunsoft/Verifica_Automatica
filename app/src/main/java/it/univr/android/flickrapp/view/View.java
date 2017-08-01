@@ -9,5 +9,8 @@ public interface View {
     void showResults();
 
     @UiThread
+    void showPictureFhd();
+
+    @UiThread
     void onModelChanged();
 }

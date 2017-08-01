@@ -49,6 +49,11 @@ public class TabletView extends LinearLayout implements View {
         // nothing to do, this widget always shows results
     }
 
+    @Override
+    public void showPictureFhd() {
+        // nothing to do, this widget always shows results
+    }
+
     /**
      * These two constructors must exist to let the view be recreated at
      * configuration change or inflated from XML.

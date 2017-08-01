@@ -53,6 +53,14 @@ public class PhoneView extends FrameLayout implements View {
                 .commit();
     }
 
+    @Override
+    public void showPictureFhd() {
+        getFragmentManager().beginTransaction()
+                .replace(R.id.phone_view, new PictureFhdFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
     /**
      * These two constructors must exist to let the view be recreated at
      * configuration change or inflated from XML.
