@@ -4,8 +4,9 @@ import android.app.ListFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.view.*;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +19,11 @@ import it.univr.android.flickrapp.model.Model.ImgInfo;
 
 public class SearchResultsFragment extends ListFragment implements AbstractFragment {
     private MVC mvc;
+
+    @Override @UiThread
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -50,6 +56,7 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
             Model.ImgInfo imgInfo = imgInfos[position];
             ((ImageView) row.findViewById(R.id.icon)).setImageBitmap(imgInfo.getThmb());
             ((TextView) row.findViewById(R.id.title)).setText(imgInfo.getTitle());
+            ((TextView) row.findViewById(R.id.author_name)).setText(imgInfo.getAuthor_name());
             row.setOnClickListener(__->viewImageSel(position));
             return row;
         }
@@ -59,6 +66,5 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
             mvc.controller.viewPictureSel(getActivity());
             mvc.controller.showPictureFhd();
         }
-
     }
 }
