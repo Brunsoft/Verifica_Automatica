@@ -5,12 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,6 +34,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
     private final static String ACTION_SEARCH_LAST = "last";       // choice = true
     private final static String ACTION_SEARCH_TOP = "top";         // choice = false
     private final static String ACTION_SELECTION = "pic-sel";
+    private final static String ACTION_SHARE = "pic-share";
     private final static String PARAM_S = "s";
     private final static String API_KEY = "388f5641e6dc1ecac49678a156f375df";
 
@@ -67,15 +72,20 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
 
     @UiThread
     static void viewPictureSel(Context context) {
-
         Intent intent = new Intent(context, SearchService.class);
         intent.setAction(ACTION_SELECTION);
         context.startService(intent);
     }
 
+    @UiThread
+    static void sharePictureSel(Context context) {
+        Intent intent = new Intent(context, SearchService.class);
+        intent.setAction(ACTION_SHARE);
+        context.startService(intent);
+    }
+
     @WorkerThread
     protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "onHandleIntent");
         String query = "";
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
         switch (intent.getAction()) {
@@ -93,12 +103,26 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                         API_KEY);
                 break;
             case ACTION_SELECTION:
-                Model.ImgInfo result = mvc.model.getResult(mvc.model.getImageSel());
-                mvc.model.clearComments(mvc.model.getImageSel());
-                mvc.model.storeComments(commentsSearch(result.getId()), getPic(result.getUrl_l()), mvc.model.getImageSel());
+                Model.ImgInfo result = mvc.model.getResult( mvc.model.getImageSel() );
+                mvc.model.clearComments( mvc.model.getImageSel() );
+                mvc.model.storeComments(
+                        commentsSearch(result.getId()),
+                        getPic(result.getUrl_l()),
+                        mvc.model.getImageSel()
+                );
+                break;
+            case ACTION_SHARE:
+                initShareIntent(
+                        saveToInternalStorage(
+                                mvc.model.getResult(mvc.model.getImageSel()).getPicFhd(),
+                                mvc.model.getResult(mvc.model.getImageSel()).getId()
+                        )
+                );
                 break;
         }
-        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) || intent.getAction().equalsIgnoreCase(ACTION_SEARCH_LAST) || intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP))
+        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) ||
+                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_LAST) ||
+                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP))
         {
             mvc.model.clearResults();
             Iterable<Model.ImgInfo> results = pictureSearch(query);
@@ -136,6 +160,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         }
     }
 
+    @WorkerThread
     private Iterable<Model.ImgInfo> parsePic(String xml) {
         List<Model.ImgInfo> infos = new LinkedList<>();
 
@@ -146,7 +171,8 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 //Log.d(TAG, "nextPhoto = " + nextPhoto);
                 int idPos = xml.indexOf("id=", nextPhoto) + 4;
                 int titlePos = xml.indexOf("title=", nextPhoto) + 7;
-                int authorPos = xml.indexOf("owner=", nextPhoto) + 7;
+                int authorNamePos = xml.indexOf("ownername=", nextPhoto) + 11;
+                int authorIdPos = xml.indexOf("owner=", nextPhoto) + 7;
                 int url_sqPos = xml.indexOf("url_sq=", nextPhoto) + 8;
                 int url_lPos = xml.indexOf("url_l=", nextPhoto) + 7;
                 String photoId = xml.substring(idPos, xml.indexOf("\"", idPos + 1));
@@ -154,10 +180,11 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 Log.d(TAG, "photoId = " + photoId);
 
                 String title = xml.substring(titlePos, xml.indexOf("\"", titlePos + 1));
-                String author = xml.substring(authorPos, xml.indexOf("\"", authorPos + 1));
+                String author_name = xml.substring(authorNamePos, xml.indexOf("\"", authorNamePos + 1));
+                String author_id = xml.substring(authorIdPos, xml.indexOf("\"", authorIdPos + 1));
                 String url_sq = xml.substring(url_sqPos, xml.indexOf("\"", url_sqPos + 1));
                 String url_l = xml.substring(url_lPos, xml.indexOf("\"", url_lPos + 1));
-                infos.add(new Model.ImgInfo(photoId, title, author, url_sq, url_l, getPic(url_sq)));
+                infos.add(new Model.ImgInfo(photoId, title, author_id, author_name, url_sq, url_l, getPic(url_sq)));
             }
         }
         while (nextPhoto != -1);
@@ -165,6 +192,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         return infos;
     }
 
+    @WorkerThread
     private Iterable<Model.CommentImg> parseCom(String xml) {
         List<Model.CommentImg> comments = new LinkedList<>();
 
@@ -219,6 +247,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         }
     }
 
+    @WorkerThread
     private static Bitmap getPic(String url) {
         Bitmap bm = null;
         try {
@@ -237,4 +266,34 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         return bm;
     }
 
+    @WorkerThread
+    private Uri saveToInternalStorage(Bitmap img_fhd, String id_img) {
+        Uri bmpUri = null;
+        try {
+            String path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/FlickrApp/";
+            File file = new File(path);
+
+            if (!file.exists()) {
+                Log.e(TAG, "Directory not exist!");
+                if (!file.mkdirs())
+                    Log.e(TAG, "Directory not created!");
+            }
+
+            FileOutputStream out = new FileOutputStream(path + id_img + ".png");
+            img_fhd.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(new File(path + id_img + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
+    @WorkerThread
+    private void initShareIntent(Uri uri) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType("image/*");
+        startActivity(Intent.createChooser(intent, "Share image via..."));
+    }
 }

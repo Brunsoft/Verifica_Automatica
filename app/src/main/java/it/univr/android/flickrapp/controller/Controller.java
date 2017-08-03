@@ -20,6 +20,11 @@ public class Controller {
     }
 
     @UiThread
+    public void sharePictureSel(Context context) {
+        SearchService.sharePictureSel(context);
+    }
+
+    @UiThread
     public void viewPictureSel(Context context) {
         SearchService.viewPictureSel(context);
     }

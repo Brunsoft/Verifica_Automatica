@@ -5,11 +5,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import it.univr.android.flickrapp.FlickrApplication;
@@ -22,6 +27,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;
+    private ScrollView scrollview;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +41,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         View view = inflater.inflate(R.layout.fragment_picture_fhd, container, false);
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
+        scrollview = (ScrollView)view.findViewById(R.id.scroll_result);
+
         return view;
     }
 
@@ -45,10 +53,26 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     }
 
     @Override @UiThread
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_share, menu);
+    }
+
+    @Override @UiThread
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_share){
+            mvc.controller.sharePictureSel(getActivity());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override @UiThread
     public void onModelChanged() {
         ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
-        img_fhd.setImageBitmap(imgInfo.getPicFhd());
         img_comment.setAdapter(new PictureAdapter());
+        getListViewSize(img_comment);
+        img_fhd.setImageBitmap(imgInfo.getPicFhd());
     }
 
     private class PictureAdapter extends ArrayAdapter<CommentImg> {
@@ -68,10 +92,28 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             }
 
             CommentImg comment = comments[position];
-            ((TextView) row.findViewById(R.id.author)).setText(comment.getAuthorName());
+            ((TextView) row.findViewById(R.id.comment_author)).setText(comment.getAuthorName());
             ((TextView) row.findViewById(R.id.comment)).setText(comment.getComment());
             return row;
         }
+    }
+
+    public static void getListViewSize(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+        // set listAdapter in loop for getting final size
+        int totalHeight = 0;
+        for (int size = 0; size < listAdapter.getCount(); size++) {
+            View listItem = listAdapter.getView(size, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        // setting listview item in adapter
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 
 }
