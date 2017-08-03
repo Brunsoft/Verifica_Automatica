@@ -26,17 +26,19 @@ public class Model {
         private final static DateFormat format = new SimpleDateFormat("MMM d, yyyy, HH:mm:ss");
         private final String id;
         private final String title;
-        private final String author;
+        private final String author_id;
+        private final String author_name;
         private final String url_sq;
         private final String url_l;
         private final Bitmap img_thmb;
         private Bitmap img_fhd;
         private final LinkedList<CommentImg> commentList;
 
-        public ImgInfo(String id, String title, String author, String url_sq, String url_l, Bitmap bmp) {
+        public ImgInfo(String id, String title, String author_id, String author_name, String url_sq, String url_l, Bitmap bmp) {
             this.id = id;
             this.title = title;
-            this.author = author;
+            this.author_id = author_id;
+            this.author_name = author_name;
             this.url_sq = url_sq;
             this.url_l = url_l;
             this.img_thmb = bmp;
@@ -51,8 +53,12 @@ public class Model {
             return title;
         }
 
-        public String getAuthor() {
-            return author;
+        public String getAuthor_id() {
+            return author_id;
+        }
+
+        public String getAuthor_name() {
+            return author_name;
         }
 
         public String getUrl_sq(){
@@ -79,7 +85,7 @@ public class Model {
 
         @Override
         public String toString() {
-            return title + "\n" + author + "\n" + url_l;
+            return title + "\n" + author_id + "\n" + url_l;
         }
 
     }
