@@ -5,4 +5,9 @@
         android:title="@string/share_button"
         android:icon="@android:drawable/ic_menu_share"
         android:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/menu_info"
+        android:title="@string/info_button"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:showAsAction="ifRoom|withText" />
 </menu>

@@ -44,6 +44,9 @@ public class Controller {
     public void showResultsAuthor() { mvc.forEachView(View::showResultsAuthor); }
 
     @UiThread
+    public void showInfo() { mvc.forEachView(View::showInfo); }
+
+    @UiThread
     public void setSwitchedView(boolean switchedView) { this.switchedView = switchedView; }
 
     @UiThread

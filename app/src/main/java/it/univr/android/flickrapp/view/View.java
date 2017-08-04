@@ -15,5 +15,8 @@ public interface View {
     void showPictureFhd();
 
     @UiThread
+    void showInfo();
+
+    @UiThread
     void onModelChanged();
 }
