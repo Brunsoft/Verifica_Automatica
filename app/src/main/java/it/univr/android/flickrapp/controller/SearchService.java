@@ -30,9 +30,10 @@ import it.univr.android.flickrapp.model.Model;
 
 public class SearchService extends IntentService { // extends ExecutorIntentService
     private final static String TAG = SearchService.class.getName();
-    private final static String ACTION_SEARCH_STR = "str";
-    private final static String ACTION_SEARCH_LAST = "last";       // choice = true
-    private final static String ACTION_SEARCH_TOP = "top";         // choice = false
+    private final static String ACTION_SEARCH_STR = "str";         // choice = 0
+    private final static String ACTION_SEARCH_LAST = "last";       // choice = 1
+    private final static String ACTION_SEARCH_TOP = "top";         // choice = 2
+    private final static String ACTION_SEARCH_OWN = "own";         // choice = 3
     private final static String ACTION_SELECTION = "pic-sel";
     private final static String ACTION_SHARE = "pic-share";
     private final static String PARAM_S = "s";
@@ -66,6 +67,10 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
             case 2:
                 intent.setAction(ACTION_SEARCH_TOP);
                 break;
+            case 3:
+                intent.setAction(ACTION_SEARCH_OWN);
+                intent.putExtra(PARAM_S, s);
+                break;
         }
         context.startService(intent);
     }
@@ -94,24 +99,38 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                         API_KEY,
                         (String) intent.getSerializableExtra(PARAM_S));
                 break;
+
             case ACTION_SEARCH_LAST:
                 query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=20",
                         API_KEY);
                 break;
+
             case ACTION_SEARCH_TOP:
                 query = String.format("https://api.flickr.com/services/rest?method=flickr.interestingness.getList&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=20",
                         API_KEY);
                 break;
+
+            case ACTION_SEARCH_OWN:
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=20",
+                        API_KEY,
+                        (String) intent.getSerializableExtra(PARAM_S));
+                break;
+
             case ACTION_SELECTION:
-                Model.ImgInfo result = mvc.model.getResult( mvc.model.getImageSel() );
+                Model.ImgInfo result_1 = mvc.model.getResult( mvc.model.getImageSel() );
+                if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
+                    mvc.model.storeImgFhd(getPic(result_1.getUrl_l()), mvc.model.getImageSel());
                 mvc.model.clearComments( mvc.model.getImageSel() );
                 mvc.model.storeComments(
-                        commentsSearch(result.getId()),
-                        getPic(result.getUrl_l()),
+                        commentsSearch(result_1.getId()),
                         mvc.model.getImageSel()
                 );
                 break;
+
             case ACTION_SHARE:
+                Model.ImgInfo result_2 = mvc.model.getResult( mvc.model.getImageSel() );
+                if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
+                    mvc.model.storeImgFhd(getPic(result_2.getUrl_l()), mvc.model.getImageSel());
                 initShareIntent(
                         saveToInternalStorage(
                                 mvc.model.getResult(mvc.model.getImageSel()).getPicFhd(),
@@ -122,7 +141,8 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         }
         if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) ||
                 intent.getAction().equalsIgnoreCase(ACTION_SEARCH_LAST) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP))
+                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP) ||
+                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN))
         {
             mvc.model.clearResults();
             Iterable<Model.ImgInfo> results = pictureSearch(query);
@@ -145,7 +165,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 String line;
                 while ((line = in.readLine()) != null) {
                     answer += line + "\n";
-                    Log.d(TAG, line);
+                    //Log.d(TAG, line);
                 }
             }
             finally {
@@ -177,7 +197,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 int url_lPos = xml.indexOf("url_l=", nextPhoto) + 7;
                 String photoId = xml.substring(idPos, xml.indexOf("\"", idPos + 1));
 
-                Log.d(TAG, "photoId = " + photoId);
+                //Log.d(TAG, "photoId = " + photoId);
 
                 String title = xml.substring(titlePos, xml.indexOf("\"", titlePos + 1));
                 String author_name = xml.substring(authorNamePos, xml.indexOf("\"", authorNamePos + 1));
@@ -200,13 +220,13 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         do {
             nextComment = xml.indexOf("<comment id", nextComment + 1);
             if (nextComment >= 0) {
-                Log.d(TAG, "nextComment = " + nextComment);
+                //Log.d(TAG, "nextComment = " + nextComment);
                 int authornamePos = xml.indexOf("authorname=", nextComment) + 12;
                 int commentPos = xml.indexOf("\">", nextComment) + 2;
                 String authorname = xml.substring(authornamePos, xml.indexOf("\"", authornamePos + 1));
                 String comment = xml.substring(commentPos, xml.indexOf("<", commentPos + 1));
                 comments.add(new Model.CommentImg(authorname,comment));
-                Log.d(TAG, "authorname = " + authorname + "\n" + "comment = " + comment);
+                //Log.d(TAG, "authorname = " + authorname + "\n" + "comment = " + comment);
             }
         }
         while (nextComment != -1);
@@ -232,7 +252,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 String line;
                 while ((line = in.readLine()) != null) {
                     answer += line + "\n";
-                    Log.d(TAG, line);
+                    //Log.d(TAG, line);
                 }
             }
             finally {
@@ -251,7 +271,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
     private static Bitmap getPic(String url) {
         Bitmap bm = null;
         try {
-            Log.d(TAG, url);
+            //Log.d(TAG, url);
             URL aURL = new URL(url);
             URLConnection conn = aURL.openConnection();
             conn.connect();
@@ -294,6 +314,6 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.setType("image/*");
-        startActivity(Intent.createChooser(intent, "Share image via..."));
+        startActivity(Intent.createChooser(intent, "Share with.."));
     }
 }

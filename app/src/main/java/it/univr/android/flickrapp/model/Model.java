@@ -19,6 +19,8 @@ public class Model {
 
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> results = new LinkedList<>();
+    private final LinkedList<ImgInfo> resultsAuthor = new LinkedList<>();
+
     private int image_sel;
 
     @Immutable
@@ -123,56 +125,99 @@ public class Model {
     }
 
     public void storeResults(Iterable<ImgInfo> results) {
-        synchronized (this.results) {
-
-            for (ImgInfo img: results)
-                this.results.add(img);
-        }
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results) {
+                for (ImgInfo img: results)
+                    this.results.add(img);
+            }
+        else
+            synchronized (this.resultsAuthor) {
+                for (ImgInfo img: results)
+                    this.resultsAuthor.add(img);
+            }
 
         mvc.forEachView(View::onModelChanged);
     }
 
     public void clearResults() {
-        synchronized (this.results) {
-            this.results.clear();
-        }
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results) {
+                this.results.clear();
+            }
+        else
+            synchronized (this.resultsAuthor) {
+                this.resultsAuthor.clear();
+            }
 
         mvc.forEachView(View::onModelChanged);
     }
 
-    public void storeComments(Iterable<CommentImg> commentList, Bitmap img_fhd, int pos) {
-        synchronized (this.results.get(pos).commentList) {
-            for (CommentImg comment: commentList)
-                this.results.get(pos).commentList.add(comment);
-        }
-        if (this.results.get(pos).img_fhd == null)
-            this.results.get(pos).img_fhd = img_fhd;
+    public void storeComments(Iterable<CommentImg> commentList, int pos) {
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results.get(pos).commentList) {
+                for (CommentImg comment: commentList)
+                    this.results.get(pos).commentList.add(comment);
+            }
         else
-            synchronized (this.results.get(pos).img_fhd){
-                this.results.get(pos).img_fhd = img_fhd;
+            synchronized (this.resultsAuthor.get(pos).commentList) {
+                for (CommentImg comment: commentList)
+                    this.resultsAuthor.get(pos).commentList.add(comment);
             }
 
         this.mvc.forEachView(View::onModelChanged);
     }
 
     public void clearComments(int pos) {
-        synchronized (this.results.get(pos).commentList) {
-            this.results.get(pos).commentList.clear();
-        }
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results.get(pos).commentList) {
+                this.results.get(pos).commentList.clear();
+            }
+        else
+            synchronized (this.resultsAuthor.get(pos).commentList) {
+                this.resultsAuthor.get(pos).commentList.clear();
+            }
 
         mvc.forEachView(View::onModelChanged);
     }
 
-    public ImgInfo[] getResults() {
-        synchronized (this.results) {
-            return this.results.toArray(new ImgInfo[this.results.size()]);
+    public void storeImgFhd(Bitmap img_fhd, int pos) {
+        if (mvc.controller.getSwitchedView()) {
+            if (this.results.get(pos).img_fhd == null)
+                this.results.get(pos).img_fhd = img_fhd;
+            else
+                synchronized (this.results.get(pos).img_fhd) {
+                    this.results.get(pos).img_fhd = img_fhd;
+                }
+        } else {
+            if (this.resultsAuthor.get(pos).img_fhd == null)
+                this.resultsAuthor.get(pos).img_fhd = img_fhd;
+            else
+                synchronized (this.resultsAuthor.get(pos).img_fhd) {
+                    this.resultsAuthor.get(pos).img_fhd = img_fhd;
+                }
         }
     }
 
+    public ImgInfo[] getResults() {
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results) {
+                return this.results.toArray(new ImgInfo[this.results.size()]);
+            }
+        else
+            synchronized (this.resultsAuthor) {
+                return this.resultsAuthor.toArray(new ImgInfo[this.resultsAuthor.size()]);
+            }
+    }
+
     public ImgInfo getResult(int pos) {
-        synchronized (this.results)  {
-            return this.results.get(pos);
-        }
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results)  {
+                return this.results.get(pos);
+            }
+        else
+            synchronized (this.resultsAuthor)  {
+                return this.resultsAuthor.get(pos);
+            }
     }
 
 }

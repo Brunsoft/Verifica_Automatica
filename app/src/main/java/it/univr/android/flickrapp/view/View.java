@@ -9,6 +9,9 @@ public interface View {
     void showResults();
 
     @UiThread
+    void showResultsAuthor();
+
+    @UiThread
     void showPictureFhd();
 
     @UiThread

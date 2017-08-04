@@ -5,6 +5,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/results_item"
     android:padding="10dp"
     tools:context="it.univr.android.flickrapp.view.SearchResultsFragment">
 
@@ -31,9 +32,9 @@
             android:textStyle="bold"
             android:textSize="18dp"
             android:textColor="#000000"
-            android:maxLength="36"
             android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp" />
+            android:layout_marginBottom="2dp"
+            android:maxLines="1" />
 
         <TextView android:id="@+id/author_name"
             android:layout_width="match_parent"

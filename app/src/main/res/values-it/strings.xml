@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">FlickrApp</string>
-    <string name="insert_string">Cerca...</string>
+    <string name="insert_string">Cerca..</string>
     <string name="button_search_str">Cerca</string>
     <string name="button_search_last">Immagini Recenti</string>
     <string name="button_search_top">Immagini Popolari</string>
     <string name="share_button">Condividi</string>
+    <string name="share_title">Condividi tramite..</string>
+    <string name="context_menu_title">Opzioni:</string>
+    <string-array name="context_menu">
+        <item>Condividi</item>
+        <item>Altre foto di</item>
+    </string-array>
 </resources>

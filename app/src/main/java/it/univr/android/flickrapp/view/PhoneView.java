@@ -54,6 +54,14 @@ public class PhoneView extends FrameLayout implements View {
     }
 
     @Override
+    public void showResultsAuthor() {
+        getFragmentManager().beginTransaction()
+                .replace(R.id.phone_view, new SearchResultsAuthorFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
     public void showPictureFhd() {
         getFragmentManager().beginTransaction()
                 .replace(R.id.phone_view, new PictureFhdFragment())

@@ -9,6 +9,7 @@ import it.univr.android.flickrapp.view.View;
 public class Controller {
     private final static String TAG = Controller.class.getName();
     private MVC mvc;
+    private boolean switchedView = true;
 
     public void setMVC(MVC mvc) {
         this.mvc = mvc;
@@ -38,5 +39,14 @@ public class Controller {
     public void showPictureFhd() {
         mvc.forEachView(View::showPictureFhd);
     }
+
+    @UiThread
+    public void showResultsAuthor() { mvc.forEachView(View::showResultsAuthor); }
+
+    @UiThread
+    public void setSwitchedView(boolean switchedView) { this.switchedView = switchedView; }
+
+    @UiThread
+    public boolean getSwitchedView() { return switchedView; }
 
 }

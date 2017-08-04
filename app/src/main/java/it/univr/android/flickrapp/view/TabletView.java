@@ -50,8 +50,13 @@ public class TabletView extends LinearLayout implements View {
     }
 
     @Override
+    public void showResultsAuthor(){
+        // nothing to do, this widget always shows resultsAuthor
+    }
+
+    @Override
     public void showPictureFhd() {
-        // nothing to do, this widget always shows results
+        // nothing to do, this widget always shows pictureFhd
     }
 
     /**
