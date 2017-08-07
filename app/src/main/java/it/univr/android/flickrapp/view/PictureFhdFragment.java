@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import it.univr.android.flickrapp.FlickrApplication;
@@ -27,7 +26,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;
-    private ScrollView scrollview;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,7 +39,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         View view = inflater.inflate(R.layout.fragment_picture_fhd, container, false);
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
-        scrollview = (ScrollView)view.findViewById(R.id.scroll_result);
 
         return view;
     }
@@ -60,11 +57,16 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_item_share){
-            mvc.controller.sharePictureSel(getActivity());
-            return true;
+        switch(item.getItemId()) {
+            case R.id.menu_item_share:
+                mvc.controller.sharePictureSel(getActivity());
+                return true;
+            case R.id.menu_info:
+                mvc.controller.showInfo();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override @UiThread

@@ -6,9 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,7 +28,6 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     @Nullable @Override @UiThread
@@ -57,38 +53,26 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     }
 
     @Override @UiThread
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_share, menu);
-        menu.removeItem(R.id.menu_item_share);
-    }
-
-    @Override @UiThread
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_info){
-            mvc.controller.showInfo();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override @UiThread
     public void onModelChanged() {
         search_str.setEnabled(true);
+        search_last.setEnabled(true);
+        search_top.setEnabled(true);
     }
 
     @UiThread private void search(int choice) {
         String s = "";
         switch (choice) {
             case 0:
-                search_str.setEnabled(false);
                 try {
                     s = new String(insertString.getText().toString());
                     if (s.isEmpty())
                         throw new IllegalArgumentException();
+                    else
+                        search_str.setEnabled(false);
                 } catch (IllegalArgumentException e) {
-                    message.setText("Inserimento non valido");
+                    message.setText(R.string.error_empty_field);
                     Log.e(TAG, "Inserimento non valido");
+                    return;
                 }
                 break;
             case 1:
@@ -98,6 +82,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
                 search_top.setEnabled(false);
                 break;
         }
+
         mvc.controller.search(getActivity(), choice, s);
         mvc.controller.showResults();
     }
