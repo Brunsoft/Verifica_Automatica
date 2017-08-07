@@ -68,8 +68,9 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
                 break;
             case 1:
                 Log.d("SRF", "Scelta search");
-                String author_id = mvc.model.getResult(info.position).getAuthor_id();
-                mvc.controller.setSwitchedView(!mvc.controller.getSwitchedView());
+                Log.d("SRF", "" + mvc.controller.getSwitchedView());
+                String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
+                mvc.controller.setSwitchedView(false);
                 mvc.controller.search(getActivity(), 3, author_id);
                 mvc.controller.showResultsAuthor();
                 break;

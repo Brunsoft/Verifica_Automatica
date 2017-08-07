@@ -30,6 +30,12 @@ public class TabletView extends LinearLayout implements View {
         super.onAttachedToWindow();
         mvc = ((FlickrApplication) getContext().getApplicationContext()).getMVC();
         mvc.register(this);
+
+        // at the beginning, show the SearchResultFragment
+        if (getSearchResultsFragment() == null)
+            getFragmentManager().beginTransaction()
+                    .add(R.id.results_fragment, new SearchResultsFragment())
+                    .commit();
     }
 
     @Override
@@ -45,23 +51,30 @@ public class TabletView extends LinearLayout implements View {
     }
 
     @Override
-    public void showResults() {
-        // nothing to do, this widget always shows results
-    }
+    public void showResults() { }
 
     @Override
     public void showResultsAuthor(){
-        // nothing to do, this widget always shows resultsAuthor
+        getFragmentManager().beginTransaction()
+                .replace(R.id.results_fragment, new SearchResultsAuthorFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
     public void showPictureFhd() {
-        // nothing to do, this widget always shows pictureFhd
+        getFragmentManager().beginTransaction()
+                .replace(R.id.results_fragment, new PictureFhdFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
     public void showInfo() {
-        // nothing to do, this widget always shows info app
+        getFragmentManager().beginTransaction()
+                .replace(R.id.results_fragment, new InfoFragment())
+                .addToBackStack(null)
+                .commit();
     }
     /**
      * These two constructors must exist to let the view be recreated at

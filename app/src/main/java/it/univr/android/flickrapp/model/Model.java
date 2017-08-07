@@ -220,4 +220,15 @@ public class Model {
             }
     }
 
+    public ImgInfo getResult(int pos, boolean choice) {
+        if (choice)
+            synchronized (this.results)  {
+                return this.results.get(pos);
+            }
+        else
+            synchronized (this.resultsAuthor)  {
+                return this.resultsAuthor.get(pos);
+            }
+    }
+
 }

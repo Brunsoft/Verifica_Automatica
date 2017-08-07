@@ -47,9 +47,17 @@ public class Controller {
     public void showInfo() { mvc.forEachView(View::showInfo); }
 
     @UiThread
-    public void setSwitchedView(boolean switchedView) { this.switchedView = switchedView; }
+    public void setSwitchedView(boolean switchedView) {
+        synchronized (this){
+            this.switchedView = switchedView;
+        }
+    }
 
     @UiThread
-    public boolean getSwitchedView() { return switchedView; }
+    public boolean getSwitchedView() {
+        synchronized (this) {
+            return switchedView;
+        }
+    }
 
 }
