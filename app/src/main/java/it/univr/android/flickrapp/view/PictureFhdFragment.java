@@ -1,9 +1,11 @@
 package it.univr.android.flickrapp.view;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +28,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;
+    private TextView no_comments;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +42,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         View view = inflater.inflate(R.layout.fragment_picture_fhd, container, false);
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
+        no_comments = (TextView)view.findViewById(R.id.no_comments);
 
         return view;
     }
@@ -46,6 +50,10 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
+        img_comment.setAdapter(new PictureAdapter());
+        getListViewSize(img_comment);
+        img_fhd.setImageBitmap(imgInfo.getPicFhd());
         onModelChanged();
     }
 
@@ -62,7 +70,10 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
                 mvc.controller.sharePictureSel(getActivity());
                 return true;
             case R.id.menu_info:
-                mvc.controller.showInfo();
+                Dialog d = new Dialog(getActivity());
+                d.setTitle(getResources().getText(R.string.info_button));
+                d.setContentView(R.layout.dialog_info);
+                d.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -71,10 +82,16 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onModelChanged() {
-        ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
-        img_comment.setAdapter(new PictureAdapter());
-        getListViewSize(img_comment);
-        img_fhd.setImageBitmap(imgInfo.getPicFhd());
+        try {
+            ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
+            img_comment.setAdapter(new PictureAdapter());
+            getListViewSize(img_comment);
+            img_fhd.setImageBitmap(imgInfo.getPicFhd());
+            ListAdapter listAdapter = img_comment.getAdapter();
+            Log.d("Comment_", "" + listAdapter.getCount());
+            if (mvc.model.getEmptyComment(mvc.model.getImageSel()))
+                no_comments.setText("Nessun commento trovato");
+        }catch (Exception e){}
     }
 
     private class PictureAdapter extends ArrayAdapter<CommentImg> {

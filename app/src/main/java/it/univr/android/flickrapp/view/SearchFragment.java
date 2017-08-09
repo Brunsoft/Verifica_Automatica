@@ -1,9 +1,16 @@
 package it.univr.android.flickrapp.view;
 
+import android.Manifest;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
@@ -34,6 +42,9 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
+        checkDataPermission();
+        checkNetworkAvailable();
+
         insertString = (EditText) view.findViewById(R.id.insert_string);
         search_str = (Button) view.findViewById(R.id.search_string);
         search_last = (Button) view.findViewById(R.id.search_last);
@@ -42,6 +53,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_str.setOnClickListener(__ -> search(0));
         search_last.setOnClickListener(__ -> search(1));
         search_top.setOnClickListener(__ -> search(2));
+
         return view;
     }
 
@@ -53,11 +65,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     }
 
     @Override @UiThread
-    public void onModelChanged() {
-        search_str.setEnabled(true);
-        search_last.setEnabled(true);
-        search_top.setEnabled(true);
-    }
+    public void onModelChanged() { }
 
     @UiThread private void search(int choice) {
         String s = "";
@@ -67,24 +75,41 @@ public class SearchFragment extends Fragment implements AbstractFragment {
                     s = new String(insertString.getText().toString());
                     if (s.isEmpty())
                         throw new IllegalArgumentException();
-                    else
-                        search_str.setEnabled(false);
                 } catch (IllegalArgumentException e) {
                     message.setText(R.string.error_empty_field);
                     Log.e(TAG, "Inserimento non valido");
                     return;
                 }
                 break;
-            case 1:
-                search_last.setEnabled(false);
-                break;
-            case 2:
-                search_top.setEnabled(false);
-                break;
         }
 
+        mvc.model.setEmptyResult(false);
         mvc.controller.search(getActivity(), choice, s);
         mvc.controller.showResults();
     }
 
+
+    private void checkNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (!(netInfo != null && netInfo.isConnected()))
+            Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
+    }
+
+    private void checkDataPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {}
+                else
+                    Toast.makeText(getActivity(), getResources().getText(R.string.storage_permission), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+    }
 }

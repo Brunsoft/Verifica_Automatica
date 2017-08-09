@@ -22,6 +22,7 @@ public class Model {
     private final LinkedList<ImgInfo> resultsAuthor = new LinkedList<>();
 
     private int image_sel;
+    private boolean empty_result = false;
 
     @Immutable
     public static class ImgInfo {
@@ -32,7 +33,8 @@ public class Model {
         private final String author_name;
         private final String url_sq;
         private final String url_l;
-        private final Bitmap img_thmb;
+        private boolean empty_comment;
+        private Bitmap img_thmb;
         private Bitmap img_fhd;
         private final LinkedList<CommentImg> commentList;
 
@@ -148,8 +150,6 @@ public class Model {
             synchronized (this.resultsAuthor) {
                 this.resultsAuthor.clear();
             }
-
-        mvc.forEachView(View::onModelChanged);
     }
 
     public void storeComments(Iterable<CommentImg> commentList, int pos) {
@@ -176,8 +176,28 @@ public class Model {
             synchronized (this.resultsAuthor.get(pos).commentList) {
                 this.resultsAuthor.get(pos).commentList.clear();
             }
+    }
 
-        mvc.forEachView(View::onModelChanged);
+    public void setEmptyComment(int pos, boolean empty_comment){
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results.get(pos)) {
+                this.results.get(pos).empty_comment = empty_comment;
+            }
+        else
+            synchronized (this.resultsAuthor.get(pos)) {
+                this.resultsAuthor.get(pos).empty_comment = empty_comment;
+            }
+    }
+
+    public boolean getEmptyComment(int pos){
+        if (mvc.controller.getSwitchedView())
+            synchronized (this.results.get(pos)) {
+                return this.results.get(pos).empty_comment;
+            }
+        else
+            synchronized (this.resultsAuthor.get(pos)) {
+                return this.resultsAuthor.get(pos).empty_comment;
+            }
     }
 
     public void storeImgFhd(Bitmap img_fhd, int pos) {
@@ -229,6 +249,18 @@ public class Model {
             synchronized (this.resultsAuthor)  {
                 return this.resultsAuthor.get(pos);
             }
+    }
+
+    public boolean getEnptyResult(){
+        synchronized (this){
+            return this.empty_result;
+        }
+    }
+
+    public void setEmptyResult(boolean empty_result) {
+        synchronized (this) {
+            this.empty_result = empty_result;
+        }
     }
 
 }

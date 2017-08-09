@@ -69,13 +69,6 @@ public class TabletView extends LinearLayout implements View {
                 .commit();
     }
 
-    @Override
-    public void showInfo() {
-        getFragmentManager().beginTransaction()
-                .replace(R.id.results_fragment, new InfoFragment())
-                .addToBackStack(null)
-                .commit();
-    }
     /**
      * These two constructors must exist to let the view be recreated at
      * configuration change or inflated from XML.

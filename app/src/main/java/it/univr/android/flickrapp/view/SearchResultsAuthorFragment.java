@@ -14,7 +14,10 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
 
     @Override @UiThread
     public void onModelChanged() {
-        setListAdapter(new SearchAdapter());
+        results_list.setAdapter(new SearchAdapter());
+        if (mvc.model.getEnptyResult())
+            empty_results.setText(R.string.empty_results);
+
     }
 
     @Override

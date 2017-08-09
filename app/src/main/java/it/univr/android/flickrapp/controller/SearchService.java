@@ -121,10 +121,14 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
                     mvc.model.storeImgFhd(getPic(result_1.getUrl_l()), mvc.model.getImageSel());
                 mvc.model.clearComments( mvc.model.getImageSel() );
+                Iterable<Model.CommentImg> comments = commentsSearch(result_1.getId());
                 mvc.model.storeComments(
-                        commentsSearch(result_1.getId()),
+                        comments,
                         mvc.model.getImageSel()
                 );
+                if (!comments.iterator().hasNext())
+                    mvc.model.setEmptyComment(mvc.model.getImageSel(),true);
+
                 break;
 
             case ACTION_SHARE:
@@ -146,6 +150,9 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         {
             mvc.model.clearResults();
             Iterable<Model.ImgInfo> results = pictureSearch(query);
+            if (!results.iterator().hasNext())
+                mvc.model.setEmptyResult(true);
+
             mvc.model.storeResults(results);
         }
     }

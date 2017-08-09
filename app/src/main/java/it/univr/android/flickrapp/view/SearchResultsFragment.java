@@ -1,6 +1,6 @@
 package it.univr.android.flickrapp.view;
 
-import android.app.ListFragment;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import it.univr.android.flickrapp.FlickrApplication;
@@ -22,37 +23,50 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-public class SearchResultsFragment extends ListFragment implements AbstractFragment {
+public class SearchResultsFragment extends Fragment implements AbstractFragment {
     protected MVC mvc;
+    protected TextView empty_results;
+    protected ListView results_list;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+
+    @Nullable @Override @UiThread
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
+        View view = inflater.inflate(R.layout.fragment_results, container, false);
+        empty_results = (TextView)view.findViewById(R.id.empty_results);
+        results_list = (ListView)view.findViewById(R.id.results_list);
+        registerForContextMenu(results_list);
+        return view;
+    }
+
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
         onModelChanged();
-        registerForContextMenu(getListView());
     }
 
     @Override @UiThread
     public void onModelChanged() {
         mvc.controller.setSwitchedView(true);
-        setListAdapter(new SearchAdapter());
+        results_list.setAdapter(new SearchAdapter());
+        if (mvc.model.getEnptyResult())
+            empty_results.setText(R.string.empty_results);
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
         menu.setHeaderTitle(R.string.context_menu_title);
         String[] menuItems = getResources().getStringArray(R.array.context_menu);
         for (int i = 0; i < menuItems.length; i++) {
             String menu_item = menuItems[i];
             if ( i==1 )     // Other pic of.. name
-                menu_item += " " + mvc.model.getResult(info.position).getAuthor_name();
+                menu_item += " " + mvc.model.getResult(
+                        ((AdapterView.AdapterContextMenuInfo) menuInfo).position).getAuthor_name();
             menu.add(Menu.NONE, i, i, menu_item);
         }
     }
@@ -68,8 +82,7 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
                 break;
             case 1:
                 Log.d("SRF", "Scelta search");
-                Log.d("SRF", "" + mvc.controller.getSwitchedView());
-                String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
+                String author_id = mvc.model.getResult(info.position).getAuthor_id();
                 mvc.controller.setSwitchedView(false);
                 mvc.controller.search(getActivity(), 3, author_id);
                 mvc.controller.showResultsAuthor();
@@ -106,6 +119,7 @@ public class SearchResultsFragment extends ListFragment implements AbstractFragm
         }
 
         private void viewImageSel(int position){
+            mvc.model.setEmptyComment(position, false);
             mvc.model.setImageSel(position);
             mvc.controller.viewPictureSel(getActivity());
             mvc.controller.showPictureFhd();

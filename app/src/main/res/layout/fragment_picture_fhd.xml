@@ -32,6 +32,16 @@
                 android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+            <TextView
+                android:id="@+id/no_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#ff0000"
+                android:textStyle="bold"
+                android:textSize="18dp"
+                android:gravity="center_horizontal" />
+
         </LinearLayout>
 
     </ScrollView>

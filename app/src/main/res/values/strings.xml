@@ -7,7 +7,12 @@
     <string name="share_button">Share</string>
     <string name="info_button">Info</string>
     <string name="error_empty_field">Invalid input</string>
+    <string name="empty_results">No image found</string>
     <string name="share_title">Share with..</string>
+    <string name="app_date">August 2017</string>
+    <string name="app_version">Version 1.0</string>
+    <string name="network_warning">No network connection available</string>
+    <string name="storage_permission">Permission denied to read and write on external storage</string>
     <string name="context_menu_title">Options:</string>
     <string-array name="context_menu">
         <item>Share</item>
