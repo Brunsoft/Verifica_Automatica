@@ -69,7 +69,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         }else
             img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
 
-        onModelChanged();
+        onResultsChanged();
     }
 
     @Override @UiThread
@@ -98,7 +98,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     }
 
     @Override @UiThread
-    public void onModelChanged() {
+    public void onResultsChanged() {
         img_comment.setAdapter(new PictureAdapter());
         getListViewSize(img_comment);
     }

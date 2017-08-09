@@ -62,11 +62,11 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        onModelChanged();
+        onResultsChanged();
     }
 
     @Override @UiThread
-    public void onModelChanged() {
+    public void onResultsChanged() {
         mvc.controller.setSwitchedView(true);
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);

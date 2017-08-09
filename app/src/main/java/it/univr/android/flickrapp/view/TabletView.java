@@ -45,9 +45,9 @@ public class TabletView extends LinearLayout implements View {
     }
 
     @Override
-    public void onModelChanged() {
-        getSearchFragment().onModelChanged();
-        getSearchResultsFragment().onModelChanged();
+    public void onResultsChanged() {
+        getSearchFragment().onResultsChanged();
+        getSearchResultsFragment().onResultsChanged();
     }
 
     @Override

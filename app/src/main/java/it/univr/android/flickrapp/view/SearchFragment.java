@@ -70,11 +70,11 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
-        onModelChanged();
+        onResultsChanged();
     }
 
     @Override @UiThread
-    public void onModelChanged() { }
+    public void onResultsChanged() { }
 
     @Override @UiThread
     public void onEmptyResult() { }

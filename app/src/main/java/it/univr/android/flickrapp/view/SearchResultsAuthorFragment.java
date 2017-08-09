@@ -13,7 +13,7 @@ import it.univr.android.flickrapp.R;
 public class SearchResultsAuthorFragment extends SearchResultsFragment {
 
     @Override @UiThread
-    public void onModelChanged() {
+    public void onResultsChanged() {
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
     }

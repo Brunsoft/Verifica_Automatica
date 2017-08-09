@@ -41,8 +41,8 @@ public class PhoneView extends FrameLayout implements View {
     }
 
     @Override
-    public void onModelChanged() {
-        getFragment().onModelChanged();
+    public void onResultsChanged() {
+        getFragment().onResultsChanged();
     }
 
     @Override

@@ -7,8 +7,6 @@ import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.Immutable;
 import net.jcip.annotations.ThreadSafe;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 
 import it.univr.android.flickrapp.MVC;
@@ -31,7 +29,6 @@ public class Model {
 
     @Immutable
     public static class ImgInfo {
-        private final static DateFormat format = new SimpleDateFormat("MMM d, yyyy, HH:mm:ss");
         private final String id;
         private final String title;
         private final String author_id;
@@ -197,7 +194,7 @@ public class Model {
                     this.resultsAuthor.add(img);
             }
 
-        mvc.forEachView(View::onModelChanged);
+        mvc.forEachView(View::onResultsChanged);
     }
 
     public void clearResults() {
@@ -223,7 +220,7 @@ public class Model {
                     this.resultsAuthor.get(pos).commentList.add(comment);
             }
 
-        this.mvc.forEachView(View::onModelChanged);
+        this.mvc.forEachView(View::onResultsChanged);
     }
 
     public void clearComments(int pos) {

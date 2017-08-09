@@ -7,7 +7,6 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.view.View;
 
 public class Controller {
-    private final static String TAG = Controller.class.getName();
     private MVC mvc;
     private boolean switchedView = true;
 

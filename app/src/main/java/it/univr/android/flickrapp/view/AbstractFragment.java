@@ -5,7 +5,7 @@ import android.support.annotation.UiThread;
 public interface AbstractFragment {
 
     @UiThread
-    void onModelChanged();
+    void onResultsChanged();
 
     @UiThread
     void onEmptyResult();
