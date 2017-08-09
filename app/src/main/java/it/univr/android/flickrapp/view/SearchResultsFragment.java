@@ -1,8 +1,13 @@
 package it.univr.android.flickrapp.view;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
@@ -29,6 +34,9 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;
+    protected ArrayAdapter<ImgInfo> results_adapter;
+
+    private ProgressDialog progr_share;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,21 +52,48 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
+
+        progr_share = new ProgressDialog(getActivity());
+
         return view;
     }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         onModelChanged();
     }
 
     @Override @UiThread
     public void onModelChanged() {
         mvc.controller.setSwitchedView(true);
-        results_list.setAdapter(new SearchAdapter());
+        results_adapter = new SearchAdapter(getActivity());
+        results_list.setAdapter(results_adapter);
         if (mvc.model.getEnptyResult())
             empty_results.setText(R.string.empty_results);
+    }
+
+    @Override @UiThread
+    public void onImgLdDownloaded() {
+        results_adapter.notifyDataSetChanged();
+    }
+
+    @Override @UiThread
+    public void onImgFhdDownloaded() { }
+
+    @Override @UiThread
+    public void onImgFhdSaved() {
+        progr_share.dismiss();
+        Uri uri = mvc.model.getResult(mvc.model.getImageSel()).getUri();
+        Log.d("IMG Uri: ", uri.toString());
+
+        Intent intent = new Intent().setAction(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
     }
 
     @Override @UiThread
@@ -101,6 +136,8 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         switch (item.getItemId()){
             case 0:
                 Log.d("SRF", "Scelta SHARE");
+                progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+                progr_share.setCancelable(false);
                 mvc.model.setImageSel(info.position);
                 mvc.controller.sharePictureSel(getActivity());
                 break;
@@ -120,12 +157,12 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
 
         private final Model.ImgInfo[] imgInfos = mvc.model.getResults();
 
-        SearchAdapter() {
-            super(getActivity(), R.layout.fragment_result_item, mvc.model.getResults());
+        SearchAdapter(Activity context) {
+            super(context, R.layout.fragment_result_item, mvc.model.getResults());
         }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View row = convertView;
 
             if (row == null) {

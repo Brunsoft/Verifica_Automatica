@@ -18,6 +18,7 @@
         android:theme="@style/AppTheme">
 
         <service android:name=".controller.SearchService" />
+        <service android:name=".controller.ImageService" />
         <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

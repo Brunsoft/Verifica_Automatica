@@ -51,6 +51,15 @@ public class TabletView extends LinearLayout implements View {
     }
 
     @Override
+    public void onImgLdDownloaded() { getSearchResultsFragment().onImgLdDownloaded(); }
+
+    @Override
+    public void onImgFhdDownloaded() { getSearchResultsFragment().onImgFhdDownloaded(); }
+
+    @Override
+    public void onImgFhdSaved() { getSearchResultsFragment().onImgFhdSaved(); }
+
+    @Override
     public void showResults() { }
 
     @Override

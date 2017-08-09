@@ -76,6 +76,15 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onModelChanged() { }
 
+    @Override @UiThread
+    public void onImgLdDownloaded() { }
+
+    @Override @UiThread
+    public void onImgFhdDownloaded() { }
+
+    @Override @UiThread
+    public void onImgFhdSaved() { }
+
     @UiThread private void search(int choice) {
         String s = "";
         switch (choice) {

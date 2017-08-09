@@ -2,6 +2,9 @@ package it.univr.android.flickrapp.view;
 
 import android.app.Dialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -29,6 +32,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
+    private ProgressDialog progr_load;
+    private ProgressDialog progr_share;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,11 +43,13 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Nullable @Override @UiThread
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
         View view = inflater.inflate(R.layout.fragment_picture_fhd, container, false);
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
         no_comments = (TextView)view.findViewById(R.id.no_comments);
+
+        progr_load = new ProgressDialog(getActivity());
+        progr_share = new ProgressDialog(getActivity());
 
         return view;
     }
@@ -50,10 +57,18 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
+
         ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
         img_comment.setAdapter(new PictureAdapter());
         getListViewSize(img_comment);
-        img_fhd.setImageBitmap(imgInfo.getPicFhd());
+
+        if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null) {
+            progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+            progr_load.setCancelable(false);
+        }else
+            img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
+
         onModelChanged();
     }
 
@@ -67,6 +82,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_item_share:
+                progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+                progr_share.setCancelable(false);
                 mvc.controller.sharePictureSel(getActivity());
                 return true;
             case R.id.menu_info:
@@ -86,12 +103,34 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
             img_comment.setAdapter(new PictureAdapter());
             getListViewSize(img_comment);
-            img_fhd.setImageBitmap(imgInfo.getPicFhd());
             ListAdapter listAdapter = img_comment.getAdapter();
             Log.d("Comment_", "" + listAdapter.getCount());
             if (mvc.model.getEmptyComment(mvc.model.getImageSel()))
                 no_comments.setText("Nessun commento trovato");
         }catch (Exception e){}
+    }
+
+    @Override @UiThread
+    public void onImgLdDownloaded() { }
+
+    @Override @UiThread
+    public void onImgFhdDownloaded() {
+        progr_load.dismiss();
+        img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
+    }
+
+    @Override @UiThread
+    public void onImgFhdSaved() {
+        progr_share.dismiss();
+        Uri uri = mvc.model.getResult(mvc.model.getImageSel()).getUri();
+        Log.d("IMG Uri: ", uri.toString());
+
+        Intent intent = new Intent().setAction(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
     }
 
     private class PictureAdapter extends ArrayAdapter<CommentImg> {

@@ -6,4 +6,13 @@ public interface AbstractFragment {
 
     @UiThread
     void onModelChanged();
+
+    @UiThread
+    void onImgLdDownloaded();
+
+    @UiThread
+    void onImgFhdDownloaded();
+
+    @UiThread
+    void onImgFhdSaved();
 }

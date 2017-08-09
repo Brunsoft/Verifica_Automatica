@@ -46,6 +46,15 @@ public class PhoneView extends FrameLayout implements View {
     }
 
     @Override
+    public void onImgLdDownloaded() { getFragment().onImgLdDownloaded(); }
+
+    @Override
+    public void onImgFhdDownloaded() { getFragment().onImgFhdDownloaded(); }
+
+    @Override
+    public void onImgFhdSaved() { getFragment().onImgFhdSaved(); }
+
+    @Override
     public void showResults() {
         getFragmentManager().beginTransaction()
                 .replace(R.id.phone_view, new SearchResultsFragment())

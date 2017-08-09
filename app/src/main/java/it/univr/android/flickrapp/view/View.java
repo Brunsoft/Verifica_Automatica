@@ -16,4 +16,14 @@ public interface View {
 
     @UiThread
     void onModelChanged();
+
+    @UiThread
+    void onImgLdDownloaded();
+
+    @UiThread
+    void onImgFhdDownloaded();
+
+    @UiThread
+    void onImgFhdSaved();
+
 }
