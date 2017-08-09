@@ -26,7 +26,7 @@
                 android:layout_height="95dp"
                 android:scaleType="fitXY"
                 android:layout_gravity="right"
-                android:background="@mipmap/flickr_round" />
+                android:background="@mipmap/flickr_logo" />
 
         </LinearLayout>
 
