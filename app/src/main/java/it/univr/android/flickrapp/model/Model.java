@@ -1,6 +1,7 @@
 package it.univr.android.flickrapp.model;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.Immutable;
@@ -21,9 +22,14 @@ public class Model {
 
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> results = new LinkedList<>();
+
+    @GuardedBy("Itself")
     private final LinkedList<ImgInfo> resultsAuthor = new LinkedList<>();
 
+    @GuardedBy("this")
     private int image_sel;
+
+    @GuardedBy("this")
     private boolean empty_result = false;
 
     @Immutable
@@ -35,6 +41,7 @@ public class Model {
         private final String author_name;
         private final String url_sq;
         private final String url_l;
+        private Uri uri;
         private boolean empty_comment;
         private Bitmap img_thmb;
         private Bitmap img_fhd;
@@ -83,10 +90,24 @@ public class Model {
             return img_fhd;
         }
 
+        public Uri getUri() { return uri; }
+
         public CommentImg[] getComments() {
             synchronized (commentList) {
                 return commentList.toArray(new CommentImg[commentList.size()]);
             }
+        }
+
+        public void setImgFhd(Bitmap img_fhd){
+            this.img_fhd = img_fhd;
+        }
+
+        public void setImgLd(Bitmap img_thmb){
+            this.img_thmb = img_thmb;
+        }
+
+        public void setUri(Uri uri){
+            this.uri = uri;
         }
 
         @Override
@@ -94,14 +115,6 @@ public class Model {
             return title + "\n" + author_id + "\n" + url_l;
         }
 
-    }
-
-    public void setImageSel(int image_sel){
-        this.image_sel = image_sel;
-    }
-
-    public int getImageSel(){
-        return this.image_sel;
     }
 
     @Immutable
@@ -124,8 +137,52 @@ public class Model {
 
     }
 
+    public void setImageSel(int image_sel){
+        this.image_sel = image_sel;
+    }
+
+    public int getImageSel(){
+        return this.image_sel;
+    }
+
     public void setMVC(MVC mvc) {
         this.mvc = mvc;
+    }
+
+    public void setImageFhdSel(Bitmap img, int position){
+        if (mvc.controller.getSwitchedView())
+            synchronized (results) {
+                results.get(position).setImgFhd(img);
+            }
+        else
+            synchronized (resultsAuthor) {
+                resultsAuthor.get(position).setImgFhd(img);
+            }
+        mvc.forEachView(View::onImgFhdDownloaded);
+    }
+
+    public void setImageLdSel(Bitmap img, int position){
+        if (mvc.controller.getSwitchedView())
+            synchronized (results) {
+                results.get(position).setImgLd(img);
+            }
+        else
+            synchronized (resultsAuthor) {
+                resultsAuthor.get(position).setImgLd(img);
+            }
+        mvc.forEachView(View::onImgLdDownloaded);
+    }
+
+    public void setUri(Uri uri, int position){
+        if (mvc.controller.getSwitchedView())
+            synchronized (results) {
+                results.get(position).setUri(uri);
+            }
+        else
+            synchronized (resultsAuthor) {
+                resultsAuthor.get(position).setUri(uri);
+            }
+        mvc.forEachView(View::onImgLdDownloaded);
     }
 
     public void storeResults(Iterable<ImgInfo> results) {

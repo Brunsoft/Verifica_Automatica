@@ -3,20 +3,12 @@ package it.univr.android.flickrapp.controller;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -117,30 +109,20 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 break;
 
             case ACTION_SELECTION:
-                Model.ImgInfo result_1 = mvc.model.getResult( mvc.model.getImageSel() );
                 if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
-                    mvc.model.storeImgFhd(getPic(result_1.getUrl_l()), mvc.model.getImageSel());
+                    downloadImageFhd( mvc.model.getImageSel() );
+
                 mvc.model.clearComments( mvc.model.getImageSel() );
-                Iterable<Model.CommentImg> comments = commentsSearch(result_1.getId());
-                mvc.model.storeComments(
-                        comments,
-                        mvc.model.getImageSel()
-                );
+                Iterable<Model.CommentImg> comments = commentsSearch( mvc.model.getResult( mvc.model.getImageSel() ).getId() );
+                mvc.model.storeComments( comments, mvc.model.getImageSel() );
+
                 if (!comments.iterator().hasNext())
-                    mvc.model.setEmptyComment(mvc.model.getImageSel(),true);
+                    mvc.model.setEmptyComment( mvc.model.getImageSel(), true );
 
                 break;
 
             case ACTION_SHARE:
-                Model.ImgInfo result_2 = mvc.model.getResult( mvc.model.getImageSel() );
-                if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
-                    mvc.model.storeImgFhd(getPic(result_2.getUrl_l()), mvc.model.getImageSel());
-                initShareIntent(
-                        saveToInternalStorage(
-                                mvc.model.getResult(mvc.model.getImageSel()).getPicFhd(),
-                                mvc.model.getResult(mvc.model.getImageSel()).getId()
-                        )
-                );
+                saveImageFhd( mvc.model.getImageSel() );
                 break;
         }
         if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) ||
@@ -154,8 +136,27 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 mvc.model.setEmptyResult(true);
 
             mvc.model.storeResults(results);
+
+            downloadImageLd(results);
         }
     }
+
+    private void downloadImageLd(Iterable<Model.ImgInfo> results){
+        int i = 0;
+        for (Model.ImgInfo img : results) {
+            ImageService.downloadImage(SearchService.this, true, i);
+            i++;
+        }
+    }
+
+    private void downloadImageFhd(int pos){
+        ImageService.downloadImage(SearchService.this, false, pos);
+    }
+
+    private void saveImageFhd(int pos){
+        ImageService.saveImage(SearchService.this, pos);
+    }
+
 
     @WorkerThread
     private Iterable<Model.ImgInfo> pictureSearch(String query) {
@@ -211,7 +212,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 String author_id = xml.substring(authorIdPos, xml.indexOf("\"", authorIdPos + 1));
                 String url_sq = xml.substring(url_sqPos, xml.indexOf("\"", url_sqPos + 1));
                 String url_l = xml.substring(url_lPos, xml.indexOf("\"", url_lPos + 1));
-                infos.add(new Model.ImgInfo(photoId, title, author_id, author_name, url_sq, url_l, getPic(url_sq)));
+                infos.add(new Model.ImgInfo(photoId, title, author_id, author_name, url_sq, url_l, null));
             }
         }
         while (nextPhoto != -1);
@@ -274,53 +275,11 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
         }
     }
 
-    @WorkerThread
-    private static Bitmap getPic(String url) {
-        Bitmap bm = null;
-        try {
-            //Log.d(TAG, url);
-            URL aURL = new URL(url);
-            URLConnection conn = aURL.openConnection();
-            conn.connect();
-            InputStream is = conn.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(is);
-            bm = BitmapFactory.decodeStream(bis);
-            bis.close();
-            is.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
-        return bm;
-    }
-
-    @WorkerThread
-    private Uri saveToInternalStorage(Bitmap img_fhd, String id_img) {
-        Uri bmpUri = null;
-        try {
-            String path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/FlickrApp/";
-            File file = new File(path);
-
-            if (!file.exists()) {
-                Log.e(TAG, "Directory not exist!");
-                if (!file.mkdirs())
-                    Log.e(TAG, "Directory not created!");
-            }
-
-            FileOutputStream out = new FileOutputStream(path + id_img + ".png");
-            img_fhd.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            bmpUri = Uri.fromFile(new File(path + id_img + ".png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bmpUri;
-    }
-
-    @WorkerThread
+    /*@WorkerThread
     private void initShareIntent(Uri uri) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.setType("image/*");
         startActivity(Intent.createChooser(intent, "Share with.."));
-    }
+    }*/
 }
