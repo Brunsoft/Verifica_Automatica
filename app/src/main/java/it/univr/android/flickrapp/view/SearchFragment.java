@@ -1,6 +1,7 @@
 package it.univr.android.flickrapp.view;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,6 +14,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
+import it.univr.android.flickrapp.model.Model;
 
 public class SearchFragment extends Fragment implements AbstractFragment {
     private final static String TAG = SearchFragment.class.getName();
@@ -36,6 +41,10 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(Model.device.equals("phone_view"))
+            setHasOptionsMenu(true);
+        else
+            setHasOptionsMenu(false);
     }
 
     @Nullable @Override @UiThread
@@ -88,6 +97,26 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         mvc.controller.showResults();
     }
 
+    @Override @UiThread
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_share, menu);
+        menu.removeItem(R.id.menu_item_share);
+    }
+
+    @Override @UiThread
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_info:
+                Dialog d = new Dialog(getActivity());
+                d.setTitle(getResources().getText(R.string.info_button));
+                d.setContentView(R.layout.dialog_info);
+                d.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     private void checkNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);

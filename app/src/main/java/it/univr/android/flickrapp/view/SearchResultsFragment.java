@@ -1,5 +1,6 @@
 package it.univr.android.flickrapp.view;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +33,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
 
@@ -56,6 +59,27 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         results_list.setAdapter(new SearchAdapter());
         if (mvc.model.getEnptyResult())
             empty_results.setText(R.string.empty_results);
+    }
+
+    @Override @UiThread
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_share, menu);
+        menu.removeItem(R.id.menu_item_share);
+    }
+
+    @Override @UiThread
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_info:
+                Dialog d = new Dialog(getActivity());
+                d.setTitle(getResources().getText(R.string.info_button));
+                d.setContentView(R.layout.dialog_info);
+                d.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

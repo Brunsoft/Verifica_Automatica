@@ -17,6 +17,8 @@ import it.univr.android.flickrapp.view.View;
 public class Model {
     private MVC mvc;
 
+    public static String device = "";
+
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> results = new LinkedList<>();
     private final LinkedList<ImgInfo> resultsAuthor = new LinkedList<>();
