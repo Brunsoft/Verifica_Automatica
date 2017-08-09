@@ -46,6 +46,12 @@ public class PhoneView extends FrameLayout implements View {
     }
 
     @Override
+    public void onEmptyResult() { getFragment().onEmptyResult(); }
+
+    @Override
+    public void onEmptyComments() { getFragment().onEmptyComments(); }
+
+    @Override
     public void onImgLdDownloaded() { getFragment().onImgLdDownloaded(); }
 
     @Override

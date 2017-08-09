@@ -51,22 +51,49 @@ public class TabletView extends LinearLayout implements View {
     }
 
     @Override
-    public void onImgLdDownloaded() { getSearchResultsFragment().onImgLdDownloaded(); }
+    public void onImgLdDownloaded() {
+        getSearchFragment().onImgLdDownloaded();
+        getSearchResultsFragment().onImgLdDownloaded();
+    }
 
     @Override
-    public void onImgFhdDownloaded() { getSearchResultsFragment().onImgFhdDownloaded(); }
+    public void onEmptyResult() {
+        getSearchFragment().onEmptyResult();
+        getSearchResultsFragment().onEmptyResult();
+    }
 
     @Override
-    public void onImgFhdSaved() { getSearchResultsFragment().onImgFhdSaved(); }
+    public void onEmptyComments() {
+        getSearchFragment().onEmptyComments();
+        getSearchResultsFragment().onEmptyComments();
+    }
 
     @Override
-    public void showResults() { }
+    public void onImgFhdDownloaded() {
+        getSearchFragment().onImgFhdDownloaded();
+        getSearchResultsFragment().onImgFhdDownloaded();
+    }
+
+    @Override
+    public void onImgFhdSaved() {
+        getSearchFragment().onImgFhdSaved();
+        getSearchResultsFragment().onImgFhdSaved();
+    }
+
+    @Override
+    public void showResults() {
+        getFragmentManager().popBackStack("showResults", getFragmentManager().POP_BACK_STACK_INCLUSIVE);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.results_fragment, new SearchResultsFragment())
+                .addToBackStack("showResults")
+                .commit();
+    }
 
     @Override
     public void showResultsAuthor(){
         getFragmentManager().beginTransaction()
                 .replace(R.id.results_fragment, new SearchResultsAuthorFragment())
-                .addToBackStack(null)
+                .addToBackStack("showResultsAuthor")
                 .commit();
     }
 
@@ -74,7 +101,7 @@ public class TabletView extends LinearLayout implements View {
     public void showPictureFhd() {
         getFragmentManager().beginTransaction()
                 .replace(R.id.results_fragment, new PictureFhdFragment())
-                .addToBackStack(null)
+                .addToBackStack("showPictureFhd")
                 .commit();
     }
 

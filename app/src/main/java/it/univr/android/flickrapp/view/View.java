@@ -18,6 +18,12 @@ public interface View {
     void onModelChanged();
 
     @UiThread
+    void onEmptyResult();
+
+    @UiThread
+    void onEmptyComments();
+
+    @UiThread
     void onImgLdDownloaded();
 
     @UiThread

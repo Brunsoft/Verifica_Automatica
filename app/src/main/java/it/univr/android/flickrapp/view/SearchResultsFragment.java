@@ -47,7 +47,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
 
     @Nullable @Override @UiThread
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
         View view = inflater.inflate(R.layout.fragment_results, container, false);
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
@@ -61,6 +60,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
         onModelChanged();
     }
@@ -70,14 +70,16 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         mvc.controller.setSwitchedView(true);
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
-        if (mvc.model.getEnptyResult())
-            empty_results.setText(R.string.empty_results);
     }
 
     @Override @UiThread
-    public void onImgLdDownloaded() {
-        results_adapter.notifyDataSetChanged();
-    }
+    public void onEmptyResult() { empty_results.setText(R.string.empty_results); }
+
+    @Override @UiThread
+    public void onEmptyComments() { }
+
+    @Override @UiThread
+    public void onImgLdDownloaded() { results_adapter.notifyDataSetChanged(); }
 
     @Override @UiThread
     public void onImgFhdDownloaded() { }
@@ -180,7 +182,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         }
 
         private void viewImageSel(int position){
-            mvc.model.setEmptyComment(position, false);
             mvc.model.setImageSel(position);
             mvc.controller.viewPictureSel(getActivity());
             mvc.controller.showPictureFhd();

@@ -8,6 +8,12 @@ public interface AbstractFragment {
     void onModelChanged();
 
     @UiThread
+    void onEmptyResult();
+
+    @UiThread
+    void onEmptyComments();
+
+    @UiThread
     void onImgLdDownloaded();
 
     @UiThread

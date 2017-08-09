@@ -8,6 +8,7 @@
     <string name="info_button">Info</string>
     <string name="error_empty_field">Inserimento non valido</string>
     <string name="empty_results">Nessuna immagine trovata</string>
+    <string name="empty_comments">Nessun commento trovato</string>
     <string name="app_date">Agosto 2017</string>
     <string name="app_version">Versione 1.0</string>
     <string name="network_warning">Nessuna connessione disponibile</string>

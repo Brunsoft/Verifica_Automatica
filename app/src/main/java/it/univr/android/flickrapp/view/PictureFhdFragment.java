@@ -99,15 +99,16 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onModelChanged() {
-        try {
-            ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
-            img_comment.setAdapter(new PictureAdapter());
-            getListViewSize(img_comment);
-            ListAdapter listAdapter = img_comment.getAdapter();
-            Log.d("Comment_", "" + listAdapter.getCount());
-            if (mvc.model.getEmptyComment(mvc.model.getImageSel()))
-                no_comments.setText("Nessun commento trovato");
-        }catch (Exception e){}
+        img_comment.setAdapter(new PictureAdapter());
+        getListViewSize(img_comment);
+    }
+
+    @Override @UiThread
+    public void onEmptyResult() { }
+
+    @Override @UiThread
+    public void onEmptyComments() {
+        no_comments.setText(R.string.empty_comments);
     }
 
     @Override @UiThread

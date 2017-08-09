@@ -29,9 +29,6 @@ public class Model {
     @GuardedBy("this")
     private int image_sel;
 
-    @GuardedBy("this")
-    private boolean empty_result = false;
-
     @Immutable
     public static class ImgInfo {
         private final static DateFormat format = new SimpleDateFormat("MMM d, yyyy, HH:mm:ss");
@@ -42,7 +39,6 @@ public class Model {
         private final String url_sq;
         private final String url_l;
         private Uri uri;
-        private boolean empty_comment;
         private Bitmap img_thmb;
         private Bitmap img_fhd;
         private final LinkedList<CommentImg> commentList;
@@ -138,11 +134,15 @@ public class Model {
     }
 
     public void setImageSel(int image_sel){
-        this.image_sel = image_sel;
+        synchronized (this) {
+            this.image_sel = image_sel;
+        }
     }
 
     public int getImageSel(){
-        return this.image_sel;
+        synchronized (this) {
+            return this.image_sel;
+        }
     }
 
     public void setMVC(MVC mvc) {
@@ -237,46 +237,6 @@ public class Model {
             }
     }
 
-    public void setEmptyComment(int pos, boolean empty_comment){
-        if (mvc.controller.getSwitchedView())
-            synchronized (this.results.get(pos)) {
-                this.results.get(pos).empty_comment = empty_comment;
-            }
-        else
-            synchronized (this.resultsAuthor.get(pos)) {
-                this.resultsAuthor.get(pos).empty_comment = empty_comment;
-            }
-    }
-
-    public boolean getEmptyComment(int pos){
-        if (mvc.controller.getSwitchedView())
-            synchronized (this.results.get(pos)) {
-                return this.results.get(pos).empty_comment;
-            }
-        else
-            synchronized (this.resultsAuthor.get(pos)) {
-                return this.resultsAuthor.get(pos).empty_comment;
-            }
-    }
-
-    public void storeImgFhd(Bitmap img_fhd, int pos) {
-        if (mvc.controller.getSwitchedView()) {
-            if (this.results.get(pos).img_fhd == null)
-                this.results.get(pos).img_fhd = img_fhd;
-            else
-                synchronized (this.results.get(pos).img_fhd) {
-                    this.results.get(pos).img_fhd = img_fhd;
-                }
-        } else {
-            if (this.resultsAuthor.get(pos).img_fhd == null)
-                this.resultsAuthor.get(pos).img_fhd = img_fhd;
-            else
-                synchronized (this.resultsAuthor.get(pos).img_fhd) {
-                    this.resultsAuthor.get(pos).img_fhd = img_fhd;
-                }
-        }
-    }
-
     public ImgInfo[] getResults() {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results) {
@@ -297,29 +257,6 @@ public class Model {
             synchronized (this.resultsAuthor)  {
                 return this.resultsAuthor.get(pos);
             }
-    }
-
-    public ImgInfo getResult(int pos, boolean choice) {
-        if (choice)
-            synchronized (this.results)  {
-                return this.results.get(pos);
-            }
-        else
-            synchronized (this.resultsAuthor)  {
-                return this.resultsAuthor.get(pos);
-            }
-    }
-
-    public boolean getEnptyResult(){
-        synchronized (this){
-            return this.empty_result;
-        }
-    }
-
-    public void setEmptyResult(boolean empty_result) {
-        synchronized (this) {
-            this.empty_result = empty_result;
-        }
     }
 
 }

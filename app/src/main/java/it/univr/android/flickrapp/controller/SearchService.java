@@ -19,6 +19,7 @@ import java.util.List;
 import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.model.Model;
+import it.univr.android.flickrapp.view.View;
 
 public class SearchService extends IntentService { // extends ExecutorIntentService
     private final static String TAG = SearchService.class.getName();
@@ -117,7 +118,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
                 mvc.model.storeComments( comments, mvc.model.getImageSel() );
 
                 if (!comments.iterator().hasNext())
-                    mvc.model.setEmptyComment( mvc.model.getImageSel(), true );
+                    mvc.forEachView(View::onEmptyComments);
 
                 break;
 
@@ -133,7 +134,7 @@ public class SearchService extends IntentService { // extends ExecutorIntentServ
             mvc.model.clearResults();
             Iterable<Model.ImgInfo> results = pictureSearch(query);
             if (!results.iterator().hasNext())
-                mvc.model.setEmptyResult(true);
+                mvc.forEachView(View::onEmptyResult);
 
             mvc.model.storeResults(results);
 

@@ -8,6 +8,7 @@
     <string name="info_button">Info</string>
     <string name="error_empty_field">Invalid input</string>
     <string name="empty_results">No image found</string>
+    <string name="empty_comments">No comment found</string>
     <string name="app_date">August 2017</string>
     <string name="app_version">Version 1.0</string>
     <string name="network_warning">No network connection available</string>

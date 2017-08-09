@@ -77,6 +77,12 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public void onModelChanged() { }
 
     @Override @UiThread
+    public void onEmptyResult() { }
+
+    @Override @UiThread
+    public void onEmptyComments() { }
+
+    @Override @UiThread
     public void onImgLdDownloaded() { }
 
     @Override @UiThread
@@ -101,7 +107,6 @@ public class SearchFragment extends Fragment implements AbstractFragment {
                 break;
         }
 
-        mvc.model.setEmptyResult(false);
         mvc.controller.search(getActivity(), choice, s);
         mvc.controller.showResults();
     }
