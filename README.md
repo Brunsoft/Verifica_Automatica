@@ -33,6 +33,14 @@ Screenshots
 
 <img src="screenshots/screenshot-1.png" height="300" alt="Ricerca"/> <img src="screenshots/screenshot-2.png" height="300" alt="Risultati"/> <img src="screenshots/screenshot-3.png" height="300" alt="ImmagineFhd"/> <img src="screenshots/screenshot-4.png" height="300" alt="Info"/>
 
+Scelte Implementative
+-------------
+
+- Salvataggio immagine FHD, per la condivisione, eseguito nella cartella file:///storage/emulated/0/Android/data/it.univr.android.flickrapp/files/Pictures/FlickrApp/XXXXXXXX.png
+- Per evitare ricaricamenti inutili e a volte lenti, abbiamo scelto di memorizzare all'interno dell'oggetto ImgInfo anche l'immagine FHD in Bitmap.
+- Data la similarità delle sezioni SearchResultsFragment e SearchResultsAuthorFragment abbiamo scelto di rendere SearchResultsAuthorFragment sottoclasse di SearchResultsFragment così da ereditarne i metodi.
+- Si è scelto di disabilitare i pulsanti di ricerca fino al completamento di tutte le Intent Services, utilizzate per scaricare le immagini risultato.
+
 Autori
 -------------
 
