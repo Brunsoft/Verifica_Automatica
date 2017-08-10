@@ -7,6 +7,7 @@ package it.univr.android.flickrapp.view;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
@@ -67,6 +68,15 @@ public class TabletView extends LinearLayout implements View {
     public void onImgLdDownloaded() {
         getSearchFragment().onImgLdDownloaded();
         getSearchResultsFragment().onImgLdDownloaded();
+    }
+
+    /*
+     * Metodo chiamato dal Controller quando lo scaricamento di TUTTE le immagini Ld è completato
+     */
+    @UiThread
+    public void onImagesLdDownloaded() {
+        getSearchFragment().onImagesLdDownloaded();
+        getSearchResultsFragment().onImagesLdDownloaded();
     }
 
     /*

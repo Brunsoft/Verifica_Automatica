@@ -99,6 +99,9 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     }
 
     @Override @UiThread
+    public void onImagesLdDownloaded() { }
+
+    @Override @UiThread
     public void onImgFhdDownloaded() { }
 
     /*

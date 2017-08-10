@@ -33,6 +33,9 @@ public interface View {
     void onImgLdDownloaded();
 
     @UiThread
+    void onImagesLdDownloaded();
+
+    @UiThread
     void onImgFhdDownloaded();
 
     @UiThread

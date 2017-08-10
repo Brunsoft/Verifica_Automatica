@@ -7,6 +7,7 @@ package it.univr.android.flickrapp.view;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -72,6 +73,12 @@ public class PhoneView extends FrameLayout implements View {
      */
     @Override
     public void onImgLdDownloaded() { getFragment().onImgLdDownloaded(); }
+
+    /*
+     * Metodo chiamato dal Controller quando lo scaricamento di TUTTE le immagini Ld è completato
+     */
+    @UiThread
+    public void onImagesLdDownloaded() { getFragment().onImagesLdDownloaded(); }
 
     /*
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Fhd è completato

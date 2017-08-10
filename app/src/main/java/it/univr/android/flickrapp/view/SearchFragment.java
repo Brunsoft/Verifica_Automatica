@@ -98,6 +98,13 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public void onImgLdDownloaded() { }
 
     @Override @UiThread
+    public void onImagesLdDownloaded() {
+        search_str.setEnabled(true);
+        search_last.setEnabled(true);
+        search_top.setEnabled(true);
+    }
+
+    @Override @UiThread
     public void onImgFhdDownloaded() { }
 
     @Override @UiThread
@@ -123,6 +130,10 @@ public class SearchFragment extends Fragment implements AbstractFragment {
                 break;
         }
 
+        search_str.setEnabled(false);
+        search_last.setEnabled(false);
+        search_top.setEnabled(false);
+        message.setText(null);
         mvc.controller.search(getActivity(), choice, s);
         mvc.controller.showResults();
     }

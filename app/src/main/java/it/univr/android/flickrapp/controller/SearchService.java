@@ -157,9 +157,10 @@ public class SearchService extends IntentService {
             Iterable<Model.ImgInfo> results = pictureSearch(query);
 
             // Se non è stato trovato alcun risultato, lo notifico a tutte le View
-            if (!results.iterator().hasNext())
+            if (!results.iterator().hasNext()) {
                 mvc.forEachView(View::onEmptyResult);
-
+                mvc.forEachView(View::onImagesLdDownloaded);
+            }
             mvc.model.storeResults(results);
 
             downloadImageLd(results);

@@ -24,6 +24,9 @@ public interface AbstractFragment {
     void onImgLdDownloaded();
 
     @UiThread
+    void onImagesLdDownloaded();
+
+    @UiThread
     void onImgFhdDownloaded();
 
     @UiThread
