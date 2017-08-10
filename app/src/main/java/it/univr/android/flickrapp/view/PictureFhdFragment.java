@@ -135,9 +135,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgLdDownloaded() { }
 
-    @Override @UiThread
-    public void onImagesLdDownloaded() { }
-
     /*
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Fhd è completato
      */

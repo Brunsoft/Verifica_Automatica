@@ -208,25 +208,10 @@ public class Model {
         if (mvc.controller.getSwitchedView())
             synchronized (results) {
                 results.get(position).setImgLd(img);
-                int j = 0;
-                for (int i = 0; i < results.size(); i++) {
-                    if (results.get(i).getPicLd() != null)
-                        j++;
-                }
-                if (j == results.size())
-                    mvc.forEachView(View::onImagesLdDownloaded);
-
             }
         else
             synchronized (resultsAuthor) {
                 resultsAuthor.get(position).setImgLd(img);
-                int j = 0;
-                for (int i = 0; i < resultsAuthor.size(); i++) {
-                    if (resultsAuthor.get(i).getPicLd() != null)
-                        j++;
-                }
-                if (j == resultsAuthor.size())
-                    mvc.forEachView(View::onImagesLdDownloaded);
             }
 
         mvc.forEachView(View::onImgLdDownloaded);

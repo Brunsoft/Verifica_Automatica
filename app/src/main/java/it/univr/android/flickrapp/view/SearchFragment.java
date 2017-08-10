@@ -44,6 +44,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private Button search_last;
     private Button search_top;
     private TextView message;
+    private int countResults;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,6 +71,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last = (Button) view.findViewById(R.id.search_last);
         search_top = (Button) view.findViewById(R.id.search_top);
         message = (TextView) view.findViewById(R.id.title);
+        countResults = 0;
 
         search_str.setOnClickListener(__ -> search(0));         // ricerca delle img per stringa
         search_last.setOnClickListener(__ -> search(1));        // ricerca delle ultime img caricate
@@ -95,13 +97,14 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public void onEmptyComments() { }
 
     @Override @UiThread
-    public void onImgLdDownloaded() { }
-
-    @Override @UiThread
-    public void onImagesLdDownloaded() {
-        search_str.setEnabled(true);
-        search_last.setEnabled(true);
-        search_top.setEnabled(true);
+    public void onImgLdDownloaded() {
+        countResults++;
+        if (mvc.model.getResults().length == 0 || countResults == mvc.model.getResults().length){
+            search_str.setEnabled(true);
+            search_last.setEnabled(true);
+            search_top.setEnabled(true);
+            countResults = 0;
+        }
     }
 
     @Override @UiThread
