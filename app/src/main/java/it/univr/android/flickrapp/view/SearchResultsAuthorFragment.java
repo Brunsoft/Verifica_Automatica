@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp.view;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -10,6 +14,10 @@ import android.widget.AdapterView;
 
 import it.univr.android.flickrapp.R;
 
+/*
+ * SearchResultsAuthorFragment estende SearchResultsFragment quindi ne eredita tutti i metodi
+ * verranno riscritti solamente quelli che vogliamo abbiano un comportamento differente
+ */
 public class SearchResultsAuthorFragment extends SearchResultsFragment {
 
     @Override @UiThread
@@ -18,6 +26,9 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
         results_list.setAdapter(results_adapter);
     }
 
+    /*
+     * Differisce dal metodo ereditato solamente perché non viene più concessa la possibilità di cercare per autore.
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(R.string.context_menu_title);
@@ -27,6 +38,9 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
                 menu.add(Menu.NONE, i, i, menuItems[i]);
     }
 
+    /*
+     * Differisce dal metodo ereditato solamente perché viene concessa la sola possibilità di condividere l'immagine
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();

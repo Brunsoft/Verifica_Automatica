@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp.view;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -27,13 +31,17 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
+/*
+ * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
+ * SearchResultsFragment o SearchResultsAuthorFragment in Fhd e i relativi commenti
+ */
 public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
-    private ProgressDialog progr_load;
-    private ProgressDialog progr_share;
+    private ProgressDialog progr_load;      // mostra il progresso del caricamento dell'img Fhd e i commenti
+    private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Fhd
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         img_comment.setAdapter(new PictureAdapter());
         getListViewSize(img_comment);
 
+        // Se l'immagine Fhd non è disponibili nei risultati mostro "Caricamento in corso" nell'attesa del completamento del download
         if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null) {
             progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
             progr_load.setCancelable(false);
@@ -72,21 +81,30 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         onResultsChanged();
     }
 
+    /*
+     * Metodo invocato automaticamente per la creazione del Menu.
+     */
     @Override @UiThread
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_share, menu);
     }
 
+    /*
+     * Metodo invocato automaticamente alla selezione di una delle voci di menu.
+     * @param   item Voce del menu selezionata
+     */
     @Override @UiThread
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_item_share:
+                // Alla selezione di "share" viene avviata l'attività per la condivisione (sharePictureSel)
                 progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
                 progr_share.setCancelable(false);
                 mvc.controller.sharePictureSel(getActivity());
                 return true;
             case R.id.menu_info:
+                // Alla selezione di "info" viene mostrato un Dialog contenente le info dell'App
                 Dialog d = new Dialog(getActivity());
                 d.setTitle(getResources().getText(R.string.info_button));
                 d.setContentView(R.layout.dialog_info);
@@ -106,6 +124,9 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onEmptyResult() { }
 
+    /*
+     * Metodo chiamato dal Controller quando la lista dei commenti è vuota, mostra "Nessun commento trovato"
+     */
     @Override @UiThread
     public void onEmptyComments() {
         no_comments.setText(R.string.empty_comments);
@@ -114,12 +135,19 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgLdDownloaded() { }
 
+    /*
+     * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Fhd è completato
+     */
     @Override @UiThread
     public void onImgFhdDownloaded() {
         progr_load.dismiss();
         img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
     }
 
+    /*
+     * Metodo chiamato dal Controller quando il salvataggio dell'immagine Fhd è completato
+     * Avvia l'intent incaricato di condividere il contenuto in questione
+     */
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
@@ -134,6 +162,9 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
     }
 
+    /*
+     * PictureAdapter è la classe che gestisce la visualizzazione dei commenti
+     */
     private class PictureAdapter extends ArrayAdapter<CommentImg> {
         private final CommentImg[] comments = mvc.model.getResult(mvc.model.getImageSel()).getComments();
 
@@ -157,19 +188,23 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         }
     }
 
+    /*
+     * Metodo incaricato di cambiare l'altezza della ListView contenente tutti i commenti dell'immagine
+     * abilita così lo scroll della ScrollView
+     */
     public static void getListViewSize(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
+        if (listAdapter == null)
             return;
-        }
-        // set listAdapter in loop for getting final size
-        int totalHeight = 0;
-        for (int size = 0; size < listAdapter.getCount(); size++) {
-            View listItem = listAdapter.getView(size, null, listView);
+
+        // Itero su listView per ricavare l'altezza totale
+        int totalHeight = listView.getPaddingBottom() + listView.getPaddingTop();
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
             listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
-        // setting listview item in adapter
+
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);

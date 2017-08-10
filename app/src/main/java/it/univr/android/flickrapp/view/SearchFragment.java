@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp.view;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.Manifest;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -29,6 +33,9 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 
+/*
+ * SearchFragment è la classe che permette di effettuare le ricerche (per stringa, popolari, ultime caricate)
+ */
 public class SearchFragment extends Fragment implements AbstractFragment {
     private final static String TAG = SearchFragment.class.getName();
     private MVC mvc;
@@ -41,6 +48,8 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Se stiamo utilizzando un dispositivo con layout TabletView viene disabilitato il menu di sistema per la SearchFragment
         if(Model.device.equals("phone_view"))
             setHasOptionsMenu(true);
         else
@@ -51,7 +60,9 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
+        // controllo permessi di lettura/scrittura in memoria
         checkDataPermission();
+        // controllo della disponibilità di rete
         checkNetworkAvailable();
 
         insertString = (EditText) view.findViewById(R.id.insert_string);
@@ -59,9 +70,10 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last = (Button) view.findViewById(R.id.search_last);
         search_top = (Button) view.findViewById(R.id.search_top);
         message = (TextView) view.findViewById(R.id.title);
-        search_str.setOnClickListener(__ -> search(0));
-        search_last.setOnClickListener(__ -> search(1));
-        search_top.setOnClickListener(__ -> search(2));
+
+        search_str.setOnClickListener(__ -> search(0));         // ricerca delle img per stringa
+        search_last.setOnClickListener(__ -> search(1));        // ricerca delle ultime img caricate
+        search_top.setOnClickListener(__ -> search(2));         // ricerca delle img più popolari
 
         return view;
     }
@@ -91,6 +103,10 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() { }
 
+    /*
+     * Metodo invocato dall'ascoltatore dei pulsanti di ricerca, cambia ricerca in base alla choice passata
+     * @param   choice Scelta del tipo di ricerca da effettuare
+     */
     @UiThread private void search(int choice) {
         String s = "";
         switch (choice) {
@@ -111,6 +127,9 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         mvc.controller.showResults();
     }
 
+    /*
+     * Metodo invocato automaticamente per la creazione del Menu. Viene disabilitato il pulsante share.
+     */
     @Override @UiThread
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -118,10 +137,15 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         menu.removeItem(R.id.menu_item_share);
     }
 
+    /*
+     * Metodo invocato automaticamente alla selezione di una delle voci di menu.
+     * @param   item Voce del menu selezionata
+     */
     @Override @UiThread
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menu_info:
+                // Alla selezione di "info" viene mostrato un Dialog contenente le info dell'App
                 Dialog d = new Dialog(getActivity());
                 d.setTitle(getResources().getText(R.string.info_button));
                 d.setContentView(R.layout.dialog_info);
@@ -132,18 +156,28 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         }
     }
 
+    /*
+     * Metodo utilizzato per controllare la disponibilità della rete.
+     */
     private void checkNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        // in caso di assenza di connessione viene visualizzato un messaggio di errore
         if (!(netInfo != null && netInfo.isConnected()))
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
     }
 
+    /*
+     * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
+     */
     private void checkDataPermission() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
     }
 
+    /*
+     * Metodo che controlla l'effettiva risposta dell'utente riguardo i permessi richiesti
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
