@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
@@ -11,6 +15,10 @@ import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.ExecutorService;
 
+/*
+ * ExecutorIntentService è una classe astratta che permette di eseguire in
+ * parallelo più Intent Services utilizzando i Java Executors
+ */
 public abstract class ExecutorIntentService extends Service {
     private boolean mRedelivery;
     private ExecutorService exec;

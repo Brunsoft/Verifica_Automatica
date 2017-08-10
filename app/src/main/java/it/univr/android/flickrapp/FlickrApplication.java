@@ -1,8 +1,11 @@
 package it.univr.android.flickrapp;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.app.Application;
 
-import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.controller.Controller;
 import it.univr.android.flickrapp.model.Model;
 

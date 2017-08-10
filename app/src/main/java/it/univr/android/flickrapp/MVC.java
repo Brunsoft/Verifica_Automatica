@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.os.Looper;
 import android.os.Handler;
 
@@ -12,6 +16,9 @@ import it.univr.android.flickrapp.controller.Controller;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.view.View;
 
+/*
+ * MVC è la classe che gestisce il paradigma MVC (Model - View - Controller)
+ */
 @ThreadSafe
 public class MVC {
     public final Model model;
@@ -39,7 +46,7 @@ public class MVC {
     }
 
     public void forEachView(ViewTask task) {
-        // run a Runnable in the UI thread
+
         new Handler(Looper.getMainLooper()).post(() -> {
             for (View view: views)
                 task.process(view);
