@@ -1,5 +1,9 @@
 package it.univr.android.flickrapp.model;
 
+/**
+ * @author  Luca Vicentini, Maddalena Zuccotto
+ * @version 1.0 */
+
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -16,17 +20,30 @@ import it.univr.android.flickrapp.view.View;
 public class Model {
     private MVC mvc;
 
+    /*
+     * Stringa che permette di identificare il tipo di device su cui stiamo eseguendo l'App
+     * Utilizzato principalmente per togliere il menu dalla fragment Search del tablet.
+     */
     public static String device = "";
 
+    /*
+     * LinkedList contenente i risulatti di ricerca generica (SearchResultFragment)
+     */
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> results = new LinkedList<>();
 
+    /*
+     * LinkedList contenente i risulatti di ricerca generica (SearchResultAuthorFragment)
+     */
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> resultsAuthor = new LinkedList<>();
 
     @GuardedBy("this")
     private int image_sel;
 
+    /*
+     * Classe contenente le informazioni della singola immagine
+     */
     @Immutable
     public static class ImgInfo {
         private final String id;
@@ -110,6 +127,9 @@ public class Model {
 
     }
 
+    /*
+     * Classe contenente il commento e relativo autore
+     */
     @Immutable
     public static class CommentImg {
         private final String authorName;
@@ -130,22 +150,39 @@ public class Model {
 
     }
 
+    /*
+     * Metodo per settare il valore di image_sel
+     * @param   image_sel immagine attualmente selezionata e pronta per la visualizzazione Fhd o Share
+     */
     public void setImageSel(int image_sel){
         synchronized (this) {
             this.image_sel = image_sel;
         }
     }
 
+    /*
+     * Metodo per ricavare il valore di image_sel
+     * @return   image_sel immagine attualmente selezionata e pronta per la visualizzazione Fhd o Share
+     */
     public int getImageSel(){
         synchronized (this) {
             return this.image_sel;
         }
     }
 
+    /*
+     * Metodo per settare l'mvc
+     * @param   mvc oggetto mvc da settare
+     */
     public void setMVC(MVC mvc) {
         this.mvc = mvc;
     }
 
+    /*
+     * Metodo per settare l'immagine Bitmap Fhd dell'immagine selezionata
+     * @param   img Bitmap da salvare
+     * @param   position posizione dell'immagine d'interesse nella lista corretta
+     */
     public void setImageFhdSel(Bitmap img, int position){
         if (mvc.controller.getSwitchedView())
             synchronized (results) {
@@ -158,6 +195,11 @@ public class Model {
         mvc.forEachView(View::onImgFhdDownloaded);
     }
 
+    /*
+     * Metodo per settare l'immagine Bitmap Ld dell'immagine selezionata
+     * @param   img Bitmap da salvare
+     * @param   position posizione dell'immagine d'interesse nella lista corretta
+     */
     public void setImageLdSel(Bitmap img, int position){
         if (mvc.controller.getSwitchedView())
             synchronized (results) {
@@ -170,6 +212,11 @@ public class Model {
         mvc.forEachView(View::onImgLdDownloaded);
     }
 
+    /*
+     * Metodo per settare l'Uri dell'immagine Fhd selezionata per lo share
+     * @param   uri Uri da salvare
+     * @param   position posizione dell'immagine d'interesse nella lista corretta
+     */
     public void setUri(Uri uri, int position){
         if (mvc.controller.getSwitchedView())
             synchronized (results) {
@@ -182,6 +229,10 @@ public class Model {
         mvc.forEachView(View::onImgLdDownloaded);
     }
 
+    /*
+     * Metodo per memorizzare la lista dei nuovi risultati
+     * @param   results risultati della ricerca immagini da memorizzare nella lista corretta
+     */
     public void storeResults(Iterable<ImgInfo> results) {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results) {
@@ -197,6 +248,9 @@ public class Model {
         mvc.forEachView(View::onResultsChanged);
     }
 
+    /*
+     * Metodo per svuotare la lista, corretta, dei risultati
+     */
     public void clearResults() {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results) {
@@ -208,6 +262,11 @@ public class Model {
             }
     }
 
+    /*
+     * Metodo per memorizzare la lista dei nuovi commenti
+     * @param   commentList risultati della ricerca commenti da memorizzare nella lista corretta
+     * @param   pos posizione dell'immagine a cui i commenti si riferiscono
+     */
     public void storeComments(Iterable<CommentImg> commentList, int pos) {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results.get(pos).commentList) {
@@ -223,6 +282,10 @@ public class Model {
         this.mvc.forEachView(View::onResultsChanged);
     }
 
+    /*
+     * Metodo per svuotare la lista, corretta, dei commenti
+     * @param   pos posizione dell'immagine a cui si trovano i commenti interessati
+     */
     public void clearComments(int pos) {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results.get(pos).commentList) {
@@ -234,6 +297,10 @@ public class Model {
             }
     }
 
+    /*
+     * Metodo per ottenere la lista, corretta, dei risultati
+     * @return   ImgInfo[] Array contenente le informazioni desiderate
+     */
     public ImgInfo[] getResults() {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results) {
@@ -245,6 +312,11 @@ public class Model {
             }
     }
 
+    /*
+     * Metodo per ottenere la lista, corretta, dei risultati
+     * @param   pos posizione dell'immagine a cui ci si riferisce, nella lista corretta
+     * @return  ImgInfo oggetto contenente le informazioni desiderate
+     */
     public ImgInfo getResult(int pos) {
         if (mvc.controller.getSwitchedView())
             synchronized (this.results)  {
