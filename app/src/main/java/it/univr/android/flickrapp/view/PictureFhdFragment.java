@@ -4,14 +4,21 @@ package it.univr.android.flickrapp.view;
  * @author  Luca Vicentini, Maddalena Zuccotto
  * @version 1.0 */
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
@@ -51,6 +59,10 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Nullable @Override @UiThread
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+
+        // controllo della disponibilità di rete
+        checkNetworkAvailable();
+
         View view = inflater.inflate(R.layout.fragment_picture_fhd, container, false);
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
@@ -99,9 +111,10 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         switch(item.getItemId()) {
             case R.id.menu_item_share:
                 // Alla selezione di "share" viene avviata l'attività per la condivisione (sharePictureSel)
-                progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-                progr_share.setCancelable(false);
-                mvc.controller.sharePictureSel(getActivity());
+
+                // controllo permessi di lettura/scrittura in memoria e condivido
+                checkDataPermission();
+
                 return true;
             case R.id.menu_info:
                 // Alla selezione di "info" viene mostrato un Dialog contenente le info dell'App
@@ -208,6 +221,33 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
+    }
+
+    /*
+     * Metodo utilizzato per controllare la disponibilità della rete.
+     */
+    private void checkNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        // in caso di assenza di connessione viene visualizzato un messaggio di errore
+        if (!(netInfo != null && netInfo.isConnected()))
+            Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
+    }
+
+    /*
+     * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
+     * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
+     */
+    private void checkDataPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            // Permesso Negato
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            // Permesso Garantito
+            progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+            progr_share.setCancelable(false);
+            mvc.controller.sharePictureSel(getActivity());
+        }
     }
 
 }

@@ -4,16 +4,23 @@ package it.univr.android.flickrapp.view;
  * @author  Luca Vicentini, Maddalena Zuccotto
  * @version 1.0 */
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -27,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
@@ -54,6 +62,10 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Nullable @Override @UiThread
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_results, container, false);
+
+        // controllo della disponibilità di rete
+        checkNetworkAvailable();
+
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
@@ -174,10 +186,10 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         switch (item.getItemId()){
             case 0:
                 Log.d("SRF", "Scelta SHARE");
-                progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-                progr_share.setCancelable(false);
-                mvc.model.setImageSel(info.position);
-                mvc.controller.sharePictureSel(getActivity());
+
+                // controllo permessi di lettura/scrittura in memoria e condivido
+                checkDataPermission(info.position);
+
                 break;
             case 1:
                 Log.d("SRF", "Scelta search");
@@ -231,4 +243,33 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             mvc.controller.showPictureFhd();
         }
     }
+
+    /*
+     * Metodo utilizzato per controllare la disponibilità della rete.
+     */
+    private void checkNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        // in caso di assenza di connessione viene visualizzato un messaggio di errore
+        if (!(netInfo != null && netInfo.isConnected()))
+            Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
+    }
+
+    /*
+     * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
+     * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
+     */
+    private void checkDataPermission(int position) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            // Permesso Negato
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            // Permesso Garantito
+            progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+            progr_share.setCancelable(false);
+            mvc.model.setImageSel(position);
+            mvc.controller.sharePictureSel(getActivity());
+        }
+    }
+
 }

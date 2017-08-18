@@ -21,9 +21,9 @@
             android:layout_height="wrap_content" >
 
             <ImageView android:id="@+id/picture_fhd"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:gravity="top"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentBottom="true" />
 

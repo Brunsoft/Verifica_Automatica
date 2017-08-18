@@ -183,24 +183,11 @@ public class SearchFragment extends Fragment implements AbstractFragment {
 
     /*
      * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
+     * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
      */
     private void checkDataPermission() {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
     }
 
-    /*
-     * Metodo che controlla l'effettiva risposta dell'utente riguardo i permessi richiesti
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {}
-                else
-                    Toast.makeText(getActivity(), getResources().getText(R.string.storage_permission), Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-    }
 }
