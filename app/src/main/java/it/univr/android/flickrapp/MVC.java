@@ -16,7 +16,7 @@ import it.univr.android.flickrapp.controller.Controller;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.view.View;
 
-/*
+/**
  * MVC è la classe che gestisce il paradigma MVC (Model - View - Controller)
  */
 @ThreadSafe
