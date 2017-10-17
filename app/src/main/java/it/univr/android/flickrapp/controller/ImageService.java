@@ -33,9 +33,10 @@ import it.univr.android.flickrapp.view.View;
 public class ImageService extends ExecutorIntentService {
     private final static String TAG = ImageService.class.getName();
     private final static int num_thread = 4;
-    private final static String ACTION_DWN_IMG_FHD = "download_img_fhd";        // choice = false
-    private final static String ACTION_DWN_IMG_LD = "download_img_ld";          // choice = true
+    private final static String ACTION_DWN_IMG_FHD = "download_img_fhd";        // is_ld = false
+    private final static String ACTION_DWN_IMG_LD = "download_img_ld";          // is_ld = true
     private final static String ACTION_SAVE_IMG_FHD = "save_img_fhd";
+    private final static String AUTHOR_PAGE = "";
     private final static String PARAM_POS = "position";
 
     /**
@@ -57,19 +58,21 @@ public class ImageService extends ExecutorIntentService {
     /**
      * Metodo che crea un intent per lanciare un servizio che andrà a scaricare l'immagine
      * @param   context contesto a cui si fa riferimento
-     * @param   choice quale immagine scaricare, true > LD, false > FHD
+     * @param   is_ld quale immagine scaricare, true > LD, false > FHD
      * @param   position posizione della foto cui si fa rifermento nella lista situata nel Model
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
     @UiThread
-    static void downloadImage(Context context, boolean choice, int position) {
+    static void downloadImage(Context context, boolean is_ld, int position, boolean choice) {
         Intent intent = new Intent(context, ImageService.class);
-        if (choice) {
+        if (is_ld) {
             intent.setAction(ACTION_DWN_IMG_LD);
             intent.putExtra(PARAM_POS, position);
         } else {
             intent.setAction(ACTION_DWN_IMG_FHD);
             intent.putExtra(PARAM_POS, position);
         }
+        intent.putExtra(AUTHOR_PAGE, choice);
         context.startService(intent);
     }
 
@@ -77,12 +80,14 @@ public class ImageService extends ExecutorIntentService {
      * Metodo che crea un intent per lanciare un servizio che andrà a salvare l'immagine
      * @param   context contesto a cui si fa riferimento
      * @param   position posizione della foto cui si fa rifermento nella lista situata nel Model
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
     @UiThread
-    static void saveImage(Context context, int position) {
+    static void saveImage(Context context, int position, boolean choice) {
         Intent intent = new Intent(context, ImageService.class);
         intent.setAction(ACTION_SAVE_IMG_FHD);
         intent.putExtra(PARAM_POS, position);
+        intent.putExtra(AUTHOR_PAGE, choice);
         context.startService(intent);
     }
 
@@ -94,32 +99,41 @@ public class ImageService extends ExecutorIntentService {
     protected void onHandleIntent(Intent intent) {
         String url = "";
         int position;
+        boolean choice = intent.getBooleanExtra(AUTHOR_PAGE, true);
+        Log.d(TAG, "Azione di sharing val: "+ choice);
         Bitmap img;
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
         switch (intent.getAction()) {
             case ACTION_DWN_IMG_FHD:
+                Log.d(TAG, ACTION_DWN_IMG_FHD);
                 position = intent.getIntExtra(PARAM_POS, -1);
-                url = mvc.model.getResult(position).getUrl_l();
+                url = mvc.model.getResult(position, choice).getUrl_l();
                 img = getPic(url);
-                mvc.model.setImageFhdSel(img, position);
+                mvc.model.setImageFhdSel(img, position, choice);
                 break;
 
             case ACTION_DWN_IMG_LD:
+                Log.d(TAG, ACTION_DWN_IMG_LD);
                 position = intent.getIntExtra(PARAM_POS, -1);
-                url = mvc.model.getResult(position).getUrl_sq();
+                url = mvc.model.getResult(position, choice).getUrl_sq();
                 img = getPic(url);
-                mvc.model.setImageLdSel(img, position);
+                mvc.model.setImageLdSel(img, position, choice);
                 break;
 
             case ACTION_SAVE_IMG_FHD:
+                Log.d(TAG, ACTION_SAVE_IMG_FHD);
                 position = intent.getIntExtra(PARAM_POS, -1);
-                if (mvc.model.getResult(position).getPicFhd() == null){
-                    url = mvc.model.getResult(position).getUrl_l();
+                if (mvc.model.getResult(position, choice).getPicFhd() == null){
+                    url = mvc.model.getResult(position, choice).getUrl_l();
                     img = getPic(url);
-                    mvc.model.setImageFhdSel(img, position);
+                    mvc.model.setImageFhdSel(img, position, choice);
                 }
 
-                mvc.model.setUri( saveToInternalStorage( mvc.model.getResult(position).getPicFhd(), mvc.model.getResult(position).getId() ), position );
+                mvc.model.setUri(
+                        saveToInternalStorage(
+                                mvc.model.getResult(position, choice).getPicFhd(),
+                                mvc.model.getResult(position, choice).getId()),
+                        position, choice );
                 mvc.forEachView(View::onImgFhdSaved);
                 break;
         }

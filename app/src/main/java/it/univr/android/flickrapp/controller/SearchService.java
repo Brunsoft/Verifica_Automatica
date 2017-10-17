@@ -36,7 +36,9 @@ public class SearchService extends IntentService {
     private final static String ACTION_SEARCH_TOP = "top";         // choice = 2
     private final static String ACTION_SEARCH_OWN = "own";         // choice = 3
     private final static String ACTION_SELECTION = "pic-sel";
+    private final static String ACTION_SELECTION_OWN = "pic-sel-own";
     private final static String ACTION_SHARE = "pic-share";
+    private final static String ACTION_SHARE_OWN = "pic-share-own";
     private final static String PARAM_S = "s";
     private final static String API_KEY = "388f5641e6dc1ecac49678a156f375df";
 
@@ -88,6 +90,17 @@ public class SearchService extends IntentService {
     }
 
     /**
+     * Metodo che crea un intent per lanciare un servizio che andrà a scaricare l'immagine selezionata, dell'autore selezionato, in Fhd e i relativi commenti
+     * @param   context contesto a cui si fa riferimento
+     */
+    @UiThread
+    static void viewOwnPictureSel(Context context) {
+        Intent intent = new Intent(context, SearchService.class);
+        intent.setAction(ACTION_SELECTION_OWN);
+        context.startService(intent);
+    }
+
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a salvare in memoria l'immagine da condividere
      * @param   context contesto a cui si fa riferimento
      */
@@ -99,13 +112,32 @@ public class SearchService extends IntentService {
     }
 
     /**
+     * Metodo che crea un intent per lanciare un servizio che andrà a salvare in memoria l'immagine da condividere, dell'autore selezionato
+     * @param   context contesto a cui si fa riferimento
+     */
+    @UiThread
+    static void shareOwnPictureSel(Context context) {
+        Intent intent = new Intent(context, SearchService.class);
+        intent.setAction(ACTION_SHARE_OWN);
+        context.startService(intent);
+    }
+
+    /**
      * Metodo che gestisce l'intent
      * @param   intent intent a cui si fa riferimento
      */
     @WorkerThread
     protected void onHandleIntent(Intent intent) {
         String query = "";
+        boolean choice;
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
+        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN) ||
+                intent.getAction().equalsIgnoreCase(ACTION_SELECTION_OWN) ||
+                intent.getAction().equalsIgnoreCase(ACTION_SHARE_OWN))
+            choice = false;
+        else
+            choice = true;
+
         switch (intent.getAction()) {
             case ACTION_SEARCH_STR:
                 query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50",
@@ -130,13 +162,14 @@ public class SearchService extends IntentService {
                 break;
 
             case ACTION_SELECTION:
+            case ACTION_SELECTION_OWN:
                 // Se non è ancora stata scaricata l'immagine Fhd, procedo con il suo scaricamento
-                if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null)
-                    downloadImageFhd( mvc.model.getImageSel() );
+                if (mvc.model.getResult(mvc.model.getImageSel(), choice ).getPicFhd() == null)
+                    downloadImageFhd( mvc.model.getImageSel(), choice );
 
-                mvc.model.clearComments( mvc.model.getImageSel() );
-                Iterable<Model.CommentImg> comments = commentsSearch( mvc.model.getResult( mvc.model.getImageSel() ).getId() );
-                mvc.model.storeComments( comments, mvc.model.getImageSel() );
+                mvc.model.clearComments( mvc.model.getImageSel(), choice );
+                Iterable<Model.CommentImg> comments = commentsSearch( mvc.model.getResult( mvc.model.getImageSel(), choice).getId() );
+                mvc.model.storeComments( comments, mvc.model.getImageSel(), choice );
 
                 // Se non è stato trovato alcun commento, lo notifico a tutte le View
                 if (!comments.iterator().hasNext())
@@ -145,7 +178,8 @@ public class SearchService extends IntentService {
                 break;
 
             case ACTION_SHARE:
-                saveImageFhd( mvc.model.getImageSel() );
+            case ACTION_SHARE_OWN:
+                saveImageFhd( mvc.model.getImageSel(), choice);
                 break;
         }
         if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) ||
@@ -153,7 +187,6 @@ public class SearchService extends IntentService {
                 intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP) ||
                 intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN))
         {
-            mvc.model.clearResults();
             Iterable<Model.ImgInfo> results = pictureSearch(query);
 
             // Se non è stato trovato alcun risultato, lo notifico a tutte le View
@@ -161,20 +194,23 @@ public class SearchService extends IntentService {
                 mvc.forEachView(View::onEmptyResult);
                 mvc.forEachView(View::onImgLdDownloaded);
             }
-            mvc.model.storeResults(results);
 
-            downloadImageLd(results);
+            mvc.model.clearResults(choice);
+            mvc.model.storeResults(results, choice);
+
+            downloadImageLd(results, choice);
         }
     }
 
     /**
      * Metodo che richiama il metodo downloadImage della Classe ImageService per lo scaricamento delle immagini LD
      * @param   results lista contenente le informazioni delle immagini da scaricare (useremo solo l'url)
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    private void downloadImageLd(Iterable<Model.ImgInfo> results){
+    private void downloadImageLd(Iterable<Model.ImgInfo> results, boolean choice){
         int i = 0;
         for (Model.ImgInfo img : results) {
-            ImageService.downloadImage(SearchService.this, true, i);
+            ImageService.downloadImage(SearchService.this, true, i, choice);
             i++;
         }
     }
@@ -182,17 +218,19 @@ public class SearchService extends IntentService {
     /**
      * Metodo che richiama il metodo downloadImage della Classe ImageService per lo scaricamento dell'immagine Fhd
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare (useremo solo l'url)
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    private void downloadImageFhd(int pos){
-        ImageService.downloadImage(SearchService.this, false, pos);
+    private void downloadImageFhd(int pos, boolean choice){
+        ImageService.downloadImage(SearchService.this, false, pos, choice);
     }
 
     /**
      * Metodo che richiama il metodo saveImage della Classe ImageService per il salvataggio dell'immagine Fhd
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    private void saveImageFhd(int pos){
-        ImageService.saveImage(SearchService.this, pos);
+    private void saveImageFhd(int pos, boolean choice){
+        ImageService.saveImage(SearchService.this, pos, choice);
     }
 
     /**

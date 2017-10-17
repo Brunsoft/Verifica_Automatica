@@ -79,16 +79,16 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel());
+        ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView());
         img_comment.setAdapter(new PictureAdapter());
         getListViewSize(img_comment);
 
         // Se l'immagine Fhd non è disponibili nei risultati mostro "Caricamento in corso" nell'attesa del completamento del download
-        if (mvc.model.getResult(mvc.model.getImageSel()).getPicFhd() == null) {
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() == null) {
             progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
             progr_load.setCancelable(false);
         }else
-            img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
+            img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd());
 
         onResultsChanged();
     }
@@ -154,7 +154,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdDownloaded() {
         progr_load.dismiss();
-        img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
+        img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd());
     }
 
     /**
@@ -164,7 +164,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
-        Uri uri = mvc.model.getResult(mvc.model.getImageSel()).getUri();
+        Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
         Log.d("IMG Uri: ", uri.toString());
 
         Intent intent = new Intent().setAction(Intent.ACTION_SEND);
@@ -179,10 +179,10 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
      * PictureAdapter è la classe che gestisce la visualizzazione dei commenti
      */
     private class PictureAdapter extends ArrayAdapter<CommentImg> {
-        private final CommentImg[] comments = mvc.model.getResult(mvc.model.getImageSel()).getComments();
+        private final CommentImg[] comments = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments();
 
         private PictureAdapter() {
-            super(getActivity(), R.layout.fragment_comment_item, mvc.model.getResult(mvc.model.getImageSel()).getComments());
+            super(getActivity(), R.layout.fragment_comment_item, mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments());
         }
 
         @Override
@@ -246,7 +246,11 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             // Permesso Garantito
             progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
             progr_share.setCancelable(false);
-            mvc.controller.sharePictureSel(getActivity());
+
+            if (mvc.controller.getSwitchedView())
+                mvc.controller.sharePictureSel(getActivity());
+            else
+                mvc.controller.shareOwnPictureSel(getActivity());
         }
     }
 

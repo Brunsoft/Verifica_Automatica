@@ -186,9 +186,10 @@ public class Model {
      * Metodo per settare l'immagine Bitmap Fhd dell'immagine selezionata
      * @param   img Bitmap da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setImageFhdSel(Bitmap img, int position){
-        if (mvc.controller.getSwitchedView())
+    public void setImageFhdSel(Bitmap img, int position, boolean choice){
+        if (choice)
             synchronized (results) {
                 results.get(position).setImgFhd(img);
             }
@@ -203,9 +204,10 @@ public class Model {
      * Metodo per settare l'immagine Bitmap Ld dell'immagine selezionata
      * @param   img Bitmap da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setImageLdSel(Bitmap img, int position){
-        if (mvc.controller.getSwitchedView())
+    public void setImageLdSel(Bitmap img, int position, boolean choice){
+        if (choice)
             synchronized (results) {
                 results.get(position).setImgLd(img);
             }
@@ -221,9 +223,10 @@ public class Model {
      * Metodo per settare l'Uri dell'immagine Fhd selezionata per lo share
      * @param   uri Uri da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setUri(Uri uri, int position){
-        if (mvc.controller.getSwitchedView())
+    public void setUri(Uri uri, int position, boolean choice){
+        if (choice)
             synchronized (results) {
                 results.get(position).setUri(uri);
             }
@@ -236,9 +239,10 @@ public class Model {
     /**
      * Metodo per memorizzare la lista dei nuovi risultati
      * @param   results risultati della ricerca immagini da memorizzare nella lista corretta
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void storeResults(Iterable<ImgInfo> results) {
-        if (mvc.controller.getSwitchedView())
+    public void storeResults(Iterable<ImgInfo> results, boolean  choice) {
+        if (choice)
             synchronized (this.results) {
                 for (ImgInfo img: results)
                     this.results.add(img);
@@ -254,9 +258,10 @@ public class Model {
 
     /**
      * Metodo per svuotare la lista, corretta, dei risultati
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void clearResults() {
-        if (mvc.controller.getSwitchedView())
+    public void clearResults(boolean choice) {
+        if (choice)
             synchronized (this.results) {
                 this.results.clear();
             }
@@ -270,9 +275,10 @@ public class Model {
      * Metodo per memorizzare la lista dei nuovi commenti
      * @param   commentList risultati della ricerca commenti da memorizzare nella lista corretta
      * @param   pos posizione dell'immagine a cui i commenti si riferiscono
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void storeComments(Iterable<CommentImg> commentList, int pos) {
-        if (mvc.controller.getSwitchedView())
+    public void storeComments(Iterable<CommentImg> commentList, int pos, boolean choice) {
+        if (choice)
             synchronized (this.results.get(pos).commentList) {
                 for (CommentImg comment: commentList)
                     this.results.get(pos).commentList.add(comment);
@@ -289,9 +295,10 @@ public class Model {
     /**
      * Metodo per svuotare la lista, corretta, dei commenti
      * @param   pos posizione dell'immagine a cui si trovano i commenti interessati
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void clearComments(int pos) {
-        if (mvc.controller.getSwitchedView())
+    public void clearComments(int pos, boolean choice) {
+        if (choice)
             synchronized (this.results.get(pos).commentList) {
                 this.results.get(pos).commentList.clear();
             }
@@ -303,10 +310,11 @@ public class Model {
 
     /**
      * Metodo per ottenere la lista, corretta, dei risultati
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      * @return   ImgInfo[] Array contenente le informazioni desiderate
      */
-    public ImgInfo[] getResults() {
-        if (mvc.controller.getSwitchedView())
+    public ImgInfo[] getResults(boolean choice) {
+        if (choice)
             synchronized (this.results) {
                 return this.results.toArray(new ImgInfo[this.results.size()]);
             }
@@ -319,10 +327,11 @@ public class Model {
     /**
      * Metodo per ottenere la lista, corretta, dei risultati
      * @param   pos posizione dell'immagine a cui ci si riferisce, nella lista corretta
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      * @return  ImgInfo oggetto contenente le informazioni desiderate
      */
-    public ImgInfo getResult(int pos) {
-        if (mvc.controller.getSwitchedView())
+    public ImgInfo getResult(int pos, boolean choice) {
+        if (choice)
             synchronized (this.results)  {
                 return this.results.get(pos);
             }

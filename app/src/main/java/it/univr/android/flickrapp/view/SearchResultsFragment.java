@@ -120,7 +120,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
-        Uri uri = mvc.model.getResult(mvc.model.getImageSel()).getUri();
+        Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
         Log.d("IMG Uri: ", uri.toString());
 
         Intent intent = new Intent().setAction(Intent.ACTION_SEND);
@@ -170,7 +170,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         for (int i = 0; i < menuItems.length; i++) {
             String menu_item = menuItems[i];
             if ( i==1 )     // Altre foto dell' "autore"
-                menu_item += " " + mvc.model.getResult(((AdapterView.AdapterContextMenuInfo) menuInfo).position).getAuthor_name();
+                menu_item += " " + mvc.model.getResult(((AdapterView.AdapterContextMenuInfo) menuInfo).position, true).getAuthor_name();
 
             menu.add(Menu.NONE, i, i, menu_item);
         }
@@ -193,7 +193,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
                 break;
             case 1:
                 Log.d("SRF", "Scelta search");
-                String author_id = mvc.model.getResult(info.position).getAuthor_id();
+                String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
                 // switchedView -> false siamo in SearchResultsAuthorFragment
                 mvc.controller.setSwitchedView(false);
                 mvc.controller.search(getActivity(), 3, author_id);
@@ -208,10 +208,10 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     protected class SearchAdapter extends ArrayAdapter<ImgInfo> {
 
-        private final Model.ImgInfo[] imgInfos = mvc.model.getResults();
+        private final Model.ImgInfo[] imgInfos = mvc.model.getResults(mvc.controller.getSwitchedView());
 
         SearchAdapter(Activity context) {
-            super(context, R.layout.fragment_result_item, mvc.model.getResults());
+            super(context, R.layout.fragment_result_item, mvc.model.getResults(mvc.controller.getSwitchedView()));
         }
 
         @NonNull @Override
@@ -228,7 +228,10 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             ((ImageView) row.findViewById(R.id.icon)).setImageBitmap(imgInfo.getThmb());
             ((TextView) row.findViewById(R.id.title)).setText(imgInfo.getTitle());
             ((TextView) row.findViewById(R.id.author_name)).setText(imgInfo.getAuthor_name());
-            row.setOnClickListener(__->viewImageSel(position));
+            if (mvc.controller.getSwitchedView())
+                row.setOnClickListener(__->viewImageSel(position));
+            else
+                row.setOnClickListener(__->viewOwnImageSel(position));
             return row;
         }
 
@@ -240,6 +243,18 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         private void viewImageSel(int position){
             mvc.model.setImageSel(position);
             mvc.controller.viewPictureSel(getActivity());
+            mvc.controller.showPictureFhd();
+        }
+
+        /**
+         * Metodo di SearchAdapter invocato dai listener di ogni singolo risultato per visualizzare l'immagine
+         * dell'autore in questione in una data posizione
+         * @param   position Posizione dell'immagine da visualizzare nella lista corretta
+         */
+        private void viewOwnImageSel(int position){
+            mvc.model.setImageSel(position);
+            mvc.model.clearResults(false);
+            mvc.controller.viewOwnPictureSel(getActivity());
             mvc.controller.showPictureFhd();
         }
     }
@@ -268,7 +283,11 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
             progr_share.setCancelable(false);
             mvc.model.setImageSel(position);
-            mvc.controller.sharePictureSel(getActivity());
+
+            if (mvc.controller.getSwitchedView())
+                mvc.controller.sharePictureSel(getActivity());
+            else
+                mvc.controller.shareOwnPictureSel(getActivity());
         }
     }
 

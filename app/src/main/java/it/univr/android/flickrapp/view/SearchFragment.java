@@ -99,7 +99,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgLdDownloaded() {
         countResults++;
-        if (mvc.model.getResults().length == 0 || countResults == mvc.model.getResults().length){
+        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length == 0 || countResults == mvc.model.getResults(mvc.controller.getSwitchedView()).length){
             search_str.setEnabled(true);
             search_last.setEnabled(true);
             search_top.setEnabled(true);
@@ -137,6 +137,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last.setEnabled(false);
         search_top.setEnabled(false);
         message.setText(null);
+        mvc.model.clearResults(true);
         mvc.controller.search(getActivity(), choice, s);
         mvc.controller.showResults();
     }

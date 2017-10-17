@@ -7,15 +7,11 @@ package it.univr.android.flickrapp.controller;
 import android.content.Context;
 import android.support.annotation.UiThread;
 
-import net.jcip.annotations.GuardedBy;
-
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.view.View;
 
 public class Controller {
     private MVC mvc;
-
-    @GuardedBy("this")
     private boolean switchedView = true;
 
     /**
@@ -47,12 +43,30 @@ public class Controller {
     }
 
     /**
+     * Metodo per la condivisione dell'immagine selezionata
+     * @param   context contesto a cui si fa riferimento
+     */
+    @UiThread
+    public void shareOwnPictureSel(Context context) {
+        SearchService.shareOwnPictureSel(context);
+    }
+
+    /**
      * Metodo per la visualizzazione dell'immagine selezionata in Fhd
      * @param   context contesto a cui si fa riferimento
      */
     @UiThread
     public void viewPictureSel(Context context) {
         SearchService.viewPictureSel(context);
+    }
+
+    /**
+     * Metodo per la visualizzazione dell'immagine selezionata in Fhd
+     * @param   context contesto a cui si fa riferimento
+     */
+    @UiThread
+    public void viewOwnPictureSel(Context context) {
+        SearchService.viewOwnPictureSel(context);
     }
 
     /**
@@ -83,9 +97,7 @@ public class Controller {
      */
     @UiThread
     public void setSwitchedView(boolean switchedView) {
-        synchronized (this){
-            this.switchedView = switchedView;
-        }
+        this.switchedView = switchedView;
     }
 
     /**
@@ -94,9 +106,7 @@ public class Controller {
      */
     @UiThread
     public boolean getSwitchedView() {
-        synchronized (this) {
-            return switchedView;
-        }
+        return switchedView;
     }
 
 }
