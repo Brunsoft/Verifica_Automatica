@@ -6,7 +6,7 @@ package it.univr.android.flickrapp.view;
 
 import android.support.annotation.UiThread;
 
-/*
+/**
  * View interfaccia usata per l'implementazione delle Activity
  */
 public interface View {

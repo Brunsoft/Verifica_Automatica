@@ -12,7 +12,8 @@
     <string name="app_date">Agosto 2017</string>
     <string name="app_version">Versione 1.0</string>
     <string name="network_warning">Nessuna connessione disponibile</string>
-    <string name="storage_permission">Permesso negato in lettura e scrittura sulla memoria esterna</string>
+    <string name="storage_permission_denied">Permesso negato in lettura e scrittura sulla memoria esterna</string>
+    <string name="storage_permission_granted">Permesso concesso in lettura e scrittura sulla memoria esterna</string>
     <string name="share_title">Condividi tramite..</string>
     <string name="share_mess">Condiviso da FlickApp</string>
     <string name="wait_title">Attendere prego</string>

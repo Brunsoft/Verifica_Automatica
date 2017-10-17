@@ -25,7 +25,7 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.view.View;
 
-/*
+/**
  * SearchService è una classe per gestire lo scaricamento delle informazioni relative alle foto e i commenti
  * Lancia ImageService quando necessario
  */
@@ -40,14 +40,14 @@ public class SearchService extends IntentService {
     private final static String PARAM_S = "s";
     private final static String API_KEY = "388f5641e6dc1ecac49678a156f375df";
 
-    /*
+    /**
      * Costruttore della classe corrente
      */
     public SearchService() {
         super("search_str service");
     }
 
-    /*
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a scaricare una lista di immagini inerenti alla ricerca efettuata
      * @param   context contesto a cui si fa riferimento
      * @param   choice scelta del tipo di ricerca
@@ -76,7 +76,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
-    /*
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a scaricare l'immagine selezionata in Fhd e i relativi commenti
      * @param   context contesto a cui si fa riferimento
      */
@@ -87,7 +87,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
-    /*
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a salvare in memoria l'immagine da condividere
      * @param   context contesto a cui si fa riferimento
      */
@@ -98,7 +98,7 @@ public class SearchService extends IntentService {
         context.startService(intent);
     }
 
-    /*
+    /**
      * Metodo che gestisce l'intent
      * @param   intent intent a cui si fa riferimento
      */
@@ -167,7 +167,7 @@ public class SearchService extends IntentService {
         }
     }
 
-    /*
+    /**
      * Metodo che richiama il metodo downloadImage della Classe ImageService per lo scaricamento delle immagini LD
      * @param   results lista contenente le informazioni delle immagini da scaricare (useremo solo l'url)
      */
@@ -179,7 +179,7 @@ public class SearchService extends IntentService {
         }
     }
 
-    /*
+    /**
      * Metodo che richiama il metodo downloadImage della Classe ImageService per lo scaricamento dell'immagine Fhd
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare (useremo solo l'url)
      */
@@ -187,7 +187,7 @@ public class SearchService extends IntentService {
         ImageService.downloadImage(SearchService.this, false, pos);
     }
 
-    /*
+    /**
      * Metodo che richiama il metodo saveImage della Classe ImageService per il salvataggio dell'immagine Fhd
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare
      */
@@ -195,7 +195,7 @@ public class SearchService extends IntentService {
         ImageService.saveImage(SearchService.this, pos);
     }
 
-    /*
+    /**
      * Metodo a cui viene delegata la ricerca delle immagini tramite query url
      * @param   query Url costruito utilizzato le API di Flickr per ottenere le immagini desiderate
      * @return  Iterable<Model.ImgInfo> lista dei risultati
@@ -229,7 +229,7 @@ public class SearchService extends IntentService {
         }
     }
 
-    /*
+    /**
      * Metodo a cui viene delegata l'interpretazione della stringa risultato
      * @param   xml Stringa risultato della ricerca immagini
      * @return  Iterable<Model.ImgInfo> lista dei risultati
@@ -265,7 +265,7 @@ public class SearchService extends IntentService {
         return infos;
     }
 
-    /*
+    /**
      * Metodo a cui viene delegata l'interpretazione della stringa risultato
      * @param   xml Stringa risultato della ricerca commenti
      * @return  Iterable<Model.CommentImg> lista dei commenti
@@ -292,7 +292,7 @@ public class SearchService extends IntentService {
         return comments;
     }
 
-    /*
+    /**
      * Metodo a cui viene delegata la ricerca dei commenti tramite id della foto
      * @param   photoId id della foto di cui vogliamo ottenere i commenti
      * @return  Iterable<Model.CommentImg> lista dei commenti

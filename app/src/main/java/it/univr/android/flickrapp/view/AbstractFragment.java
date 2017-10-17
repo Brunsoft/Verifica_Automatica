@@ -6,7 +6,7 @@ package it.univr.android.flickrapp.view;
 
 import android.support.annotation.UiThread;
 
-/*
+/**
  * AbstractFragment interfaccia usata per l'implementazione delle fragment
  */
 public interface AbstractFragment {

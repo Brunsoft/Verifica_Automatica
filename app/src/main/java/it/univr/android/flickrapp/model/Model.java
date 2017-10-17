@@ -20,19 +20,19 @@ import it.univr.android.flickrapp.view.View;
 public class Model {
     private MVC mvc;
 
-    /*
+    /**
      * Stringa che permette di identificare il tipo di device su cui stiamo eseguendo l'App
      * Utilizzato principalmente per togliere il menu dalla fragment Search del tablet.
      */
     public static String device = "";
 
-    /*
+    /**
      * LinkedList contenente i risulatti di ricerca generica (SearchResultFragment)
      */
     @GuardedBy("Itself")
     private final LinkedList<ImgInfo> results = new LinkedList<>();
 
-    /*
+    /**
      * LinkedList contenente i risulatti di ricerca generica (SearchResultAuthorFragment)
      */
     @GuardedBy("Itself")
@@ -41,7 +41,7 @@ public class Model {
     @GuardedBy("this")
     private int image_sel;
 
-    /*
+    /**
      * Classe contenente le informazioni della singola immagine
      */
     @Immutable
@@ -131,7 +131,7 @@ public class Model {
 
     }
 
-    /*
+    /**
      * Classe contenente il commento e relativo autore
      */
     @Immutable
@@ -154,7 +154,7 @@ public class Model {
 
     }
 
-    /*
+    /**
      * Metodo per settare il valore di image_sel
      * @param   image_sel immagine attualmente selezionata e pronta per la visualizzazione Fhd o Share
      */
@@ -164,7 +164,7 @@ public class Model {
         }
     }
 
-    /*
+    /**
      * Metodo per ricavare il valore di image_sel
      * @return   image_sel immagine attualmente selezionata e pronta per la visualizzazione Fhd o Share
      */
@@ -174,7 +174,7 @@ public class Model {
         }
     }
 
-    /*
+    /**
      * Metodo per settare l'mvc
      * @param   mvc oggetto mvc da settare
      */
@@ -182,7 +182,7 @@ public class Model {
         this.mvc = mvc;
     }
 
-    /*
+    /**
      * Metodo per settare l'immagine Bitmap Fhd dell'immagine selezionata
      * @param   img Bitmap da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
@@ -199,7 +199,7 @@ public class Model {
         mvc.forEachView(View::onImgFhdDownloaded);
     }
 
-    /*
+    /**
      * Metodo per settare l'immagine Bitmap Ld dell'immagine selezionata
      * @param   img Bitmap da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
@@ -217,7 +217,7 @@ public class Model {
         mvc.forEachView(View::onImgLdDownloaded);
     }
 
-    /*
+    /**
      * Metodo per settare l'Uri dell'immagine Fhd selezionata per lo share
      * @param   uri Uri da salvare
      * @param   position posizione dell'immagine d'interesse nella lista corretta
@@ -233,7 +233,7 @@ public class Model {
             }
     }
 
-    /*
+    /**
      * Metodo per memorizzare la lista dei nuovi risultati
      * @param   results risultati della ricerca immagini da memorizzare nella lista corretta
      */
@@ -252,7 +252,7 @@ public class Model {
         mvc.forEachView(View::onResultsChanged);
     }
 
-    /*
+    /**
      * Metodo per svuotare la lista, corretta, dei risultati
      */
     public void clearResults() {
@@ -266,7 +266,7 @@ public class Model {
             }
     }
 
-    /*
+    /**
      * Metodo per memorizzare la lista dei nuovi commenti
      * @param   commentList risultati della ricerca commenti da memorizzare nella lista corretta
      * @param   pos posizione dell'immagine a cui i commenti si riferiscono
@@ -286,7 +286,7 @@ public class Model {
         this.mvc.forEachView(View::onResultsChanged);
     }
 
-    /*
+    /**
      * Metodo per svuotare la lista, corretta, dei commenti
      * @param   pos posizione dell'immagine a cui si trovano i commenti interessati
      */
@@ -301,7 +301,7 @@ public class Model {
             }
     }
 
-    /*
+    /**
      * Metodo per ottenere la lista, corretta, dei risultati
      * @return   ImgInfo[] Array contenente le informazioni desiderate
      */
@@ -316,7 +316,7 @@ public class Model {
             }
     }
 
-    /*
+    /**
      * Metodo per ottenere la lista, corretta, dei risultati
      * @param   pos posizione dell'immagine a cui ci si riferisce, nella lista corretta
      * @return  ImgInfo oggetto contenente le informazioni desiderate

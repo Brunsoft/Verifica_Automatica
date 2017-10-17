@@ -39,7 +39,7 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-/*
+/**
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
  * SearchResultsFragment o SearchResultsAuthorFragment in Fhd e i relativi commenti
  */
@@ -93,7 +93,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         onResultsChanged();
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente per la creazione del Menu.
      */
     @Override @UiThread
@@ -102,7 +102,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         inflater.inflate(R.menu.fragment_share, menu);
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente alla selezione di una delle voci di menu.
      * @param   item Voce del menu selezionata
      */
@@ -137,7 +137,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onEmptyResult() { }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando la lista dei commenti è vuota, mostra "Nessun commento trovato"
      */
     @Override @UiThread
@@ -148,7 +148,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgLdDownloaded() { }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Fhd è completato
      */
     @Override @UiThread
@@ -157,7 +157,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel()).getPicFhd());
     }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando il salvataggio dell'immagine Fhd è completato
      * Avvia l'intent incaricato di condividere il contenuto in questione
      */
@@ -175,7 +175,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
     }
 
-    /*
+    /**
      * PictureAdapter è la classe che gestisce la visualizzazione dei commenti
      */
     private class PictureAdapter extends ArrayAdapter<CommentImg> {
@@ -201,7 +201,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         }
     }
 
-    /*
+    /**
      * Metodo incaricato di cambiare l'altezza della ListView contenente tutti i commenti dell'immagine
      * abilita così lo scroll della ScrollView
      */
@@ -223,7 +223,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         listView.setLayoutParams(params);
     }
 
-    /*
+    /**
      * Metodo utilizzato per controllare la disponibilità della rete.
      */
     private void checkNetworkAvailable() {
@@ -234,7 +234,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
     }
 
-    /*
+    /**
      * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
      * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
      */

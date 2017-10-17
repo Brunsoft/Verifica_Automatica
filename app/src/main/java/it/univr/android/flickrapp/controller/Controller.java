@@ -18,7 +18,7 @@ public class Controller {
     @GuardedBy("this")
     private boolean switchedView = true;
 
-    /*
+    /**
      * Metodo per settare l'mvc
      * @param   mvc oggetto mvc da settare
      */
@@ -26,7 +26,7 @@ public class Controller {
         this.mvc = mvc;
     }
 
-    /*
+    /**
      * Metodo per la ricerca dei risultati (immagini in bassa risoluzione e relativi dati)
      * @param   context contesto a cui si fa riferimento
      * @param   choice scelta del tipo di ricerca
@@ -37,7 +37,7 @@ public class Controller {
         SearchService.search(context, choice, s);
     }
 
-    /*
+    /**
      * Metodo per la condivisione dell'immagine selezionata
      * @param   context contesto a cui si fa riferimento
      */
@@ -46,7 +46,7 @@ public class Controller {
         SearchService.sharePictureSel(context);
     }
 
-    /*
+    /**
      * Metodo per la visualizzazione dell'immagine selezionata in Fhd
      * @param   context contesto a cui si fa riferimento
      */
@@ -55,7 +55,7 @@ public class Controller {
         SearchService.viewPictureSel(context);
     }
 
-    /*
+    /**
      * Metodo che notifica tutte le View dell'mvc per mostrare la SearchResultFragment
      */
     @UiThread
@@ -63,7 +63,7 @@ public class Controller {
         mvc.forEachView(View::showResults);
     }
 
-    /*
+    /**
      * Metodo che notifica tutte le View dell'mvc per mostrare la PictureFhdFragment
      */
     @UiThread
@@ -71,13 +71,13 @@ public class Controller {
         mvc.forEachView(View::showPictureFhd);
     }
 
-    /*
+    /**
      * Metodo che notifica tutte le View dell'mvc per mostrare la SearchResultAuthorFragment
      */
     @UiThread
     public void showResultsAuthor() { mvc.forEachView(View::showResultsAuthor); }
 
-    /*
+    /**
      * Metodo per la gestione delle View SearchResultFragment & SearchResultAuthorFragment
      * @param   switchedView se true punta a SearchResultFragment, false punta a SearchResultAuthorFragment
      */
@@ -88,7 +88,7 @@ public class Controller {
         }
     }
 
-    /*
+    /**
      * Metodo per ricavare il valore relativo a switchedView
      * @return  switchedView valore boolean che rappresenta la View corrente tra SearchResultFragment e SearchResultAuthorFragment
      */

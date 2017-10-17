@@ -26,7 +26,7 @@ import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.view.View;
 
-/*
+/**
  * ImageService è una classe per gestire l'esecuzione parallela di più servizi
  * gestisce il download e il salvataggio in memoria delle immagini
  */
@@ -38,14 +38,14 @@ public class ImageService extends ExecutorIntentService {
     private final static String ACTION_SAVE_IMG_FHD = "save_img_fhd";
     private final static String PARAM_POS = "position";
 
-    /*
+    /**
      * Costruttore della classe corrente
      */
     public ImageService() {
         super("download_share service");
     }
 
-    /*
+    /**
      * Metodo che ritorna un ExecutorService composto da num_thread
      * @return  ExecutorService
      */
@@ -54,7 +54,7 @@ public class ImageService extends ExecutorIntentService {
         return Executors.newFixedThreadPool(num_thread);
     }
 
-    /*
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a scaricare l'immagine
      * @param   context contesto a cui si fa riferimento
      * @param   choice quale immagine scaricare, true > LD, false > FHD
@@ -73,7 +73,7 @@ public class ImageService extends ExecutorIntentService {
         context.startService(intent);
     }
 
-    /*
+    /**
      * Metodo che crea un intent per lanciare un servizio che andrà a salvare l'immagine
      * @param   context contesto a cui si fa riferimento
      * @param   position posizione della foto cui si fa rifermento nella lista situata nel Model
@@ -86,7 +86,7 @@ public class ImageService extends ExecutorIntentService {
         context.startService(intent);
     }
 
-    /*
+    /**
      * Metodo che gestisce l'intent
      * @param   intent intent a cui si fa riferimento
      */
@@ -125,7 +125,7 @@ public class ImageService extends ExecutorIntentService {
         }
     }
 
-    /*
+    /**
      * Metodo che scarica, tramite url, l'immagine in Bitmap
      * @param   url indirizzo dell'immagine
      * @return  bm immagine scaricata in Bitmap
@@ -144,7 +144,7 @@ public class ImageService extends ExecutorIntentService {
         return bm;
     }
 
-    /*
+    /**
      * Metodo che salva l'immagine in memoria
      * @param   img_fhd Bitmap rappresentante l'immagine FHD
      * @param   id_img Stringa contenente l'id, futuro nome identificativo, dell'immagine

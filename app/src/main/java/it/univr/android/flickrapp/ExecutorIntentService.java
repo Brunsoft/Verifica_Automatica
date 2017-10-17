@@ -15,7 +15,7 @@ import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.ExecutorService;
 
-/*
+/**
  * ExecutorIntentService è una classe astratta che permette di eseguire in
  * parallelo più Intent Services utilizzando i Java Executors
  */

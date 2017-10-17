@@ -42,7 +42,7 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-/*
+/**
  * SearchResultsFragment è la classe che permette di visualizzare i risultati di ricerca
  */
 public class SearchResultsFragment extends Fragment implements AbstractFragment {
@@ -91,7 +91,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         results_list.setAdapter(results_adapter);
     }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando la lista dei risultati è vuota, mostra "Nessun risultato trovato"
      */
     @Override @UiThread
@@ -102,7 +102,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onEmptyComments() { }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Ld è completato
      */
     @Override @UiThread
@@ -113,7 +113,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onImgFhdDownloaded() { }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando il salvataggio dell'immagine Fhd è completato
      * Avvia l'intent incaricato di condividere il contenuto in questione
      */
@@ -131,7 +131,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente per la creazione del Menu. Viene disabilitato il pulsante share.
      */
     @Override @UiThread
@@ -141,7 +141,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         menu.removeItem(R.id.menu_item_share);
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente alla selezione di una delle voci di menu.
      * @param   item Voce del menu selezionata
      */
@@ -160,7 +160,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         }
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente per la creazione del ContextMenu (Clik lungo).
      */
     @Override
@@ -176,7 +176,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         }
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente alla selezione di una delle voci di ContextMenu.
      * @param   item Voce del ContextMenu selezionata
      */
@@ -203,7 +203,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         return super.onContextItemSelected(item);
     }
 
-    /*
+    /**
      * SearchAdapter è la classe che gestisce la visualizzazione dei risultati di ricerca
      */
     protected class SearchAdapter extends ArrayAdapter<ImgInfo> {
@@ -232,7 +232,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             return row;
         }
 
-        /*
+        /**
          * Metodo di SearchAdapter invocato dai listener di ogni singolo risultato per visualizzare l'immagine
          * in una data posizione
          * @param   position Posizione dell'immagine da visualizzare nella lista corretta
@@ -244,7 +244,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         }
     }
 
-    /*
+    /**
      * Metodo utilizzato per controllare la disponibilità della rete.
      */
     private void checkNetworkAvailable() {
@@ -255,7 +255,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
     }
 
-    /*
+    /**
      * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
      * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
      */

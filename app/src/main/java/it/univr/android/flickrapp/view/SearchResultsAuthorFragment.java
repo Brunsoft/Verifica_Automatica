@@ -14,7 +14,7 @@ import android.widget.AdapterView;
 
 import it.univr.android.flickrapp.R;
 
-/*
+/**
  * SearchResultsAuthorFragment estende SearchResultsFragment quindi ne eredita tutti i metodi
  * verranno riscritti solamente quelli che vogliamo abbiano un comportamento differente
  */
@@ -26,7 +26,7 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
         results_list.setAdapter(results_adapter);
     }
 
-    /*
+    /**
      * Differisce dal metodo ereditato solamente perché non viene più concessa la possibilità di cercare per autore.
      */
     @Override
@@ -38,7 +38,7 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
                 menu.add(Menu.NONE, i, i, menuItems[i]);
     }
 
-    /*
+    /**
      * Differisce dal metodo ereditato solamente perché viene concessa la sola possibilità di condividere l'immagine
      */
     @Override

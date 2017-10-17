@@ -14,7 +14,7 @@ import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 
-/*
+/**
  * PhoneView è la classe che implementa la grafica per gli SmartPhone
  */
 public class PhoneView extends FrameLayout implements View {
@@ -47,7 +47,7 @@ public class PhoneView extends FrameLayout implements View {
         super.onDetachedFromWindow();
     }
 
-    /*
+    /**
      * Metodo chiamato dal Controller / Model quando la lista dei risultati cambia
      */
     @Override
@@ -55,37 +55,37 @@ public class PhoneView extends FrameLayout implements View {
         getFragment().onResultsChanged();
     }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando la lista dei risultati è vuota, mostra "Nessun risultato trovato"
      */
     @Override
     public void onEmptyResult() { getFragment().onEmptyResult(); }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando la lista dei commenti è vuota, mostra "Nessun commento trovato"
      */
     @Override
     public void onEmptyComments() { getFragment().onEmptyComments(); }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Ld è completato
      */
     @Override
     public void onImgLdDownloaded() { getFragment().onImgLdDownloaded(); }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Fhd è completato
      */
     @Override
     public void onImgFhdDownloaded() { getFragment().onImgFhdDownloaded(); }
 
-    /*
+    /**
      * Metodo chiamato dal Controller quando il salvataggio dell'immagine Fhd è completato
      */
     @Override
     public void onImgFhdSaved() { getFragment().onImgFhdSaved(); }
 
-    /*
+    /**
      * Metodo utilizzato per visualizzare i risultati della ricerca in una nuova View
      */
     @Override
@@ -96,7 +96,7 @@ public class PhoneView extends FrameLayout implements View {
                 .commit();
     }
 
-    /*
+    /**
      * Metodo utilizzato per visualizzare i risultati della ricerca, per autore, in una nuova View
      */
     @Override
@@ -107,7 +107,7 @@ public class PhoneView extends FrameLayout implements View {
                 .commit();
     }
 
-    /*
+    /**
      * Metodo utilizzato per visualizzare l'immagine selezionata, in Fhd, in una nuova View
      */
     @Override

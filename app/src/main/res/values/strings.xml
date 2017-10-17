@@ -12,7 +12,8 @@
     <string name="app_date">August 2017</string>
     <string name="app_version">Version 1.0</string>
     <string name="network_warning">No network connection available</string>
-    <string name="storage_permission">Permission denied to read and write on external storage</string>
+    <string name="storage_permission_denied">Permission denied to read and write on external storage</string>
+    <string name="storage_permission_granted">Permission granted to read and write on external storage</string>
     <string name="share_title">Share with..</string>
     <string name="share_mess">Shared by FlickApp</string>
     <string name="wait_title">Please wait</string>

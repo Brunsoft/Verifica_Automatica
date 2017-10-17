@@ -33,7 +33,7 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 
-/*
+/**
  * SearchFragment è la classe che permette di effettuare le ricerche (per stringa, popolari, ultime caricate)
  */
 public class SearchFragment extends Fragment implements AbstractFragment {
@@ -113,7 +113,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() { }
 
-    /*
+    /**
      * Metodo invocato dall'ascoltatore dei pulsanti di ricerca, cambia ricerca in base alla choice passata
      * @param   choice Scelta del tipo di ricerca da effettuare
      */
@@ -141,7 +141,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         mvc.controller.showResults();
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente per la creazione del Menu. Viene disabilitato il pulsante share.
      */
     @Override @UiThread
@@ -151,7 +151,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         menu.removeItem(R.id.menu_item_share);
     }
 
-    /*
+    /**
      * Metodo invocato automaticamente alla selezione di una delle voci di menu.
      * @param   item Voce del menu selezionata
      */
@@ -170,7 +170,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         }
     }
 
-    /*
+    /**
      * Metodo utilizzato per controllare la disponibilità della rete.
      */
     private void checkNetworkAvailable() {
@@ -181,7 +181,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
     }
 
-    /*
+    /**
      * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
      * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
      */
