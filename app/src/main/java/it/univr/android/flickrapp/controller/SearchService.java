@@ -187,6 +187,7 @@ public class SearchService extends IntentService {
                 intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP) ||
                 intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN))
         {
+            mvc.model.clearResults(choice);
             Iterable<Model.ImgInfo> results = pictureSearch(query);
 
             // Se non è stato trovato alcun risultato, lo notifico a tutte le View
@@ -195,9 +196,7 @@ public class SearchService extends IntentService {
                 mvc.forEachView(View::onImgLdDownloaded);
             }
 
-            mvc.model.clearResults(choice);
             mvc.model.storeResults(results, choice);
-
             downloadImageLd(results, choice);
         }
     }

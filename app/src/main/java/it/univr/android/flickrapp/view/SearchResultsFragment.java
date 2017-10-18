@@ -49,13 +49,20 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;
+    protected int how_many;
     protected ArrayAdapter<ImgInfo> results_adapter;
 
-    private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Fhd
+    protected ProgressDialog progr_load;    // mostra il progresso del caricamento delle img Ld
+    private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Ld
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        progr_load = new ProgressDialog(getActivity());
+        progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+        progr_load.setCancelable(false);
+
         setHasOptionsMenu(true);
     }
 
@@ -66,6 +73,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         // controllo della disponibilità di rete
         checkNetworkAvailable();
 
+        how_many = 0;
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
@@ -97,6 +105,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onEmptyResult() {
         empty_results.setText(R.string.empty_results);
+        progr_load.dismiss();
     }
 
     @Override @UiThread
@@ -107,7 +116,12 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     @Override @UiThread
     public void onImgLdDownloaded() {
+        how_many++;
         results_adapter.notifyDataSetChanged();
+        if ( how_many == mvc.model.getResults(true).length ) {
+            how_many = 0;
+            progr_load.dismiss();
+        }
     }
 
     @Override @UiThread
@@ -187,17 +201,20 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             case 0:
                 Log.d("SRF", "Scelta SHARE");
 
-                // controllo permessi di lettura/scrittura in memoria e condivido
-                checkDataPermission(info.position);
+                // C'è connessione e ci sono i permessi di lettura/scrittura in memoria e condivido
+                if (checkNetworkAvailable())
+                    checkDataPermission(info.position);
 
                 break;
             case 1:
                 Log.d("SRF", "Scelta search");
-                String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
-                // switchedView -> false siamo in SearchResultsAuthorFragment
-                mvc.controller.setSwitchedView(false);
-                mvc.controller.search(getActivity(), 3, author_id);
-                mvc.controller.showResultsAuthor();
+                if (checkNetworkAvailable()){
+                    String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
+                    // switchedView -> false siamo in SearchResultsAuthorFragment
+                    mvc.controller.setSwitchedView(false);
+                    mvc.controller.search(getActivity(), 3, author_id);
+                    mvc.controller.showResultsAuthor();
+                }
                 break;
         }
         return super.onContextItemSelected(item);
@@ -228,10 +245,12 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             ((ImageView) row.findViewById(R.id.icon)).setImageBitmap(imgInfo.getThmb());
             ((TextView) row.findViewById(R.id.title)).setText(imgInfo.getTitle());
             ((TextView) row.findViewById(R.id.author_name)).setText(imgInfo.getAuthor_name());
+
             if (mvc.controller.getSwitchedView())
-                row.setOnClickListener(__->viewImageSel(position));
+                row.setOnClickListener(__ -> viewImageSel(position));
             else
-                row.setOnClickListener(__->viewOwnImageSel(position));
+                row.setOnClickListener(__ -> viewOwnImageSel(position));
+
             return row;
         }
 
@@ -241,9 +260,11 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
          * @param   position Posizione dell'immagine da visualizzare nella lista corretta
          */
         private void viewImageSel(int position){
-            mvc.model.setImageSel(position);
-            mvc.controller.viewPictureSel(getActivity());
-            mvc.controller.showPictureFhd();
+            if (checkNetworkAvailable()) {
+                mvc.model.setImageSel(position);
+                mvc.controller.viewPictureSel(getActivity());
+                mvc.controller.showPictureFhd();
+            }
         }
 
         /**
@@ -252,29 +273,33 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
          * @param   position Posizione dell'immagine da visualizzare nella lista corretta
          */
         private void viewOwnImageSel(int position){
-            mvc.model.setImageSel(position);
-            mvc.model.clearResults(false);
-            mvc.controller.viewOwnPictureSel(getActivity());
-            mvc.controller.showPictureFhd();
+            if (checkNetworkAvailable()) {
+                mvc.model.setImageSel(position);
+                mvc.controller.viewOwnPictureSel(getActivity());
+                mvc.controller.showPictureFhd();
+            }
         }
     }
 
     /**
      * Metodo utilizzato per controllare la disponibilità della rete.
      */
-    private void checkNetworkAvailable() {
+    protected boolean checkNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         // in caso di assenza di connessione viene visualizzato un messaggio di errore
-        if (!(netInfo != null && netInfo.isConnected()))
+        if (!(netInfo != null && netInfo.isConnected())){
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     /**
      * Metodo che controlla i permessi attuali dell'app e in caso non siano concessi viene affettuata la richiesta all'utente.
      * Il metodo onRequestPermissionsResult è implementato nella classe MainActivity
      */
-    private void checkDataPermission(int position) {
+    protected void checkDataPermission(int position) {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             // Permesso Negato
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);

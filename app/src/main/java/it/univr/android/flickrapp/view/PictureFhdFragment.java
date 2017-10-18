@@ -39,7 +39,7 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-/**
+/*
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
  * SearchResultsFragment o SearchResultsAuthorFragment in Fhd e i relativi commenti
  */
@@ -48,6 +48,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
+
     private ProgressDialog progr_load;      // mostra il progresso del caricamento dell'img Fhd e i commenti
     private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Fhd
 
@@ -130,6 +131,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
+        getView().findViewById(R.id.loadingPanel).setVisibility(View.GONE);
         img_comment.setAdapter(new PictureAdapter());
         getListViewSize(img_comment);
     }
@@ -142,6 +144,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
      */
     @Override @UiThread
     public void onEmptyComments() {
+        getView().findViewById(R.id.picture_comments).setVisibility(View.GONE);
         no_comments.setText(R.string.empty_comments);
     }
 
@@ -216,10 +219,11 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             View listItem = listAdapter.getView(i, null, listView);
             listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
+            Log.d("PROVA", listItem.getMeasuredHeight()+" ");
         }
 
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount()) + 1000);
         listView.setLayoutParams(params);
     }
 

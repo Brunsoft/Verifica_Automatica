@@ -27,6 +27,19 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
     }
 
     /**
+     * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Ld è completato
+     */
+    @Override @UiThread
+    public void onImgLdDownloaded() {
+        how_many++;
+        results_adapter.notifyDataSetChanged();
+        if ( how_many == mvc.model.getResults(false).length ) {
+            how_many = 0;
+            progr_load.dismiss();
+        }
+    }
+
+    /**
      * Differisce dal metodo ereditato solamente perché non viene più concessa la possibilità di cercare per autore.
      */
     @Override
@@ -47,8 +60,10 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
         switch (item.getItemId()){
             case 0:
                 Log.d("SRAF", "Scelta SHARE");
-                mvc.model.setImageSel(info.position);
-                mvc.controller.sharePictureSel(getActivity());
+                // C'è connessione e ci sono i permessi di lettura/scrittura in memoria e condivido
+                if (checkNetworkAvailable())
+                    checkDataPermission(info.position);
+
                 break;
         }
         return super.onContextItemSelected(item);

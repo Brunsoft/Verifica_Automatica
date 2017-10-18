@@ -118,10 +118,11 @@ public class ImageService extends ExecutorIntentService {
                 url = mvc.model.getResult(position, choice).getUrl_sq();
                 img = getPic(url);
                 mvc.model.setImageLdSel(img, position, choice);
+
                 break;
 
             case ACTION_SAVE_IMG_FHD:
-                Log.d(TAG, ACTION_SAVE_IMG_FHD);
+                Log.d(TAG, ACTION_DWN_IMG_LD);
                 position = intent.getIntExtra(PARAM_POS, -1);
                 if (mvc.model.getResult(position, choice).getPicFhd() == null){
                     url = mvc.model.getResult(position, choice).getUrl_l();
@@ -168,7 +169,9 @@ public class ImageService extends ExecutorIntentService {
     private Uri saveToInternalStorage(Bitmap img_fhd, String id_img) {
         Uri imgUri = null;
         try {
-            String path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/FlickrApp/";
+            // Save into folder /storage/emulated/0/FlickrApp/
+            String path = Environment.getExternalStorageDirectory().getPath() + "/FlickrApp/";
+            Log.d(TAG, path);
             File file = new File(path);
 
             if (!file.exists()) {

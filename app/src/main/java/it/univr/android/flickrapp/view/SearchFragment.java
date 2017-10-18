@@ -118,28 +118,29 @@ public class SearchFragment extends Fragment implements AbstractFragment {
      * @param   choice Scelta del tipo di ricerca da effettuare
      */
     @UiThread private void search(int choice) {
-        String s = "";
-        switch (choice) {
-            case 0:
-                try {
-                    s = new String(insertString.getText().toString());
-                    if (s.isEmpty())
-                        throw new IllegalArgumentException();
-                } catch (IllegalArgumentException e) {
-                    message.setText(R.string.error_empty_field);
-                    Log.e(TAG, "Inserimento non valido");
-                    return;
-                }
-                break;
-        }
+        if (checkNetworkAvailable()) {
+            String s = "";
+            switch (choice) {
+                case 0:
+                    try {
+                        s = new String(insertString.getText().toString().replace(" ", "-"));
+                        if (s.isEmpty())
+                            throw new IllegalArgumentException();
+                    } catch (IllegalArgumentException e) {
+                        message.setText(R.string.error_empty_field);
+                        Log.e(TAG, "Inserimento non valido");
+                        return;
+                    }
+                    break;
+            }
 
-        search_str.setEnabled(false);
-        search_last.setEnabled(false);
-        search_top.setEnabled(false);
-        message.setText(null);
-        mvc.model.clearResults(true);
-        mvc.controller.search(getActivity(), choice, s);
-        mvc.controller.showResults();
+            search_str.setEnabled(false);
+            search_last.setEnabled(false);
+            search_top.setEnabled(false);
+            message.setText(null);
+            mvc.controller.search(getActivity(), choice, s);
+            mvc.controller.showResults();
+        }
     }
 
     /**
@@ -174,12 +175,15 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     /**
      * Metodo utilizzato per controllare la disponibilità della rete.
      */
-    private void checkNetworkAvailable() {
+    private boolean checkNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         // in caso di assenza di connessione viene visualizzato un messaggio di errore
-        if (!(netInfo != null && netInfo.isConnected()))
+        if (!(netInfo != null && netInfo.isConnected())) {
             Toast.makeText(getActivity(), getResources().getText(R.string.network_warning), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     /**

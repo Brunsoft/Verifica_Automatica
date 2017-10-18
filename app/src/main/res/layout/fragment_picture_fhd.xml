@@ -13,7 +13,7 @@
         android:id="@+id/scroll_result"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true">
+        android:fillViewport="false">
 
         <LinearLayout
             android:orientation="vertical"
@@ -27,10 +27,23 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentBottom="true" />
 
+            <RelativeLayout
+                android:id="@+id/loadingPanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center" >
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true" />
+
+            </RelativeLayout>
+
             <ListView
                 android:id="@+id/picture_comments"
                 android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                android:layout_height="fill_parent"/>
 
             <TextView
                 android:id="@+id/no_comments"
