@@ -100,7 +100,7 @@ public class ImageService extends ExecutorIntentService {
         String url = "";
         int position;
         boolean choice = intent.getBooleanExtra(AUTHOR_PAGE, true);
-        Log.d(TAG, "Azione di sharing val: "+ choice);
+        Log.d(TAG, "L'Intent scriverà in result?  "+ choice);
         Bitmap img;
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
         switch (intent.getAction()) {

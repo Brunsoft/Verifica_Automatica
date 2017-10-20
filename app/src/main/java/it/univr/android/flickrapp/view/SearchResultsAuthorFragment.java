@@ -33,10 +33,8 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
     public void onImgLdDownloaded() {
         how_many++;
         results_adapter.notifyDataSetChanged();
-        if ( how_many == mvc.model.getResults(false).length ) {
-            how_many = 0;
+        if ( how_many == mvc.model.getResults(false).length )
             progr_load.dismiss();
-        }
     }
 
     /**

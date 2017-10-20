@@ -5,6 +5,7 @@ package it.univr.android.flickrapp.view;
  * @version 1.0 */
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -28,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +37,6 @@ import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
-import it.univr.android.flickrapp.model.Model.ImgInfo;
 
 /*
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
@@ -48,6 +47,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
+    protected ArrayAdapter<CommentImg> comments_adapter;
 
     private ProgressDialog progr_load;      // mostra il progresso del caricamento dell'img Fhd e i commenti
     private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Fhd
@@ -68,7 +68,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
         no_comments = (TextView)view.findViewById(R.id.no_comments);
-
         progr_load = new ProgressDialog(getActivity());
         progr_share = new ProgressDialog(getActivity());
 
@@ -80,18 +79,20 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        ImgInfo imgInfo = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView());
-        img_comment.setAdapter(new PictureAdapter());
-        getListViewSize(img_comment);
-
         // Se l'immagine Fhd non è disponibili nei risultati mostro "Caricamento in corso" nell'attesa del completamento del download
         if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() == null) {
             progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
             progr_load.setCancelable(false);
-        }else
-            img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd());
+        }
+        else if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length == 0){
+            onImgFhdDownloaded();
+            onEmptyComments();
+        }
+        else{
+            onImgFhdDownloaded();
+            onResultsChanged();
+        }
 
-        onResultsChanged();
     }
 
     /**
@@ -131,9 +132,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
-        getView().findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-        img_comment.setAdapter(new PictureAdapter());
-        getListViewSize(img_comment);
+        comments_adapter = new PictureAdapter(getActivity());
+        img_comment.setAdapter(comments_adapter);
     }
 
     @Override @UiThread
@@ -184,8 +184,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private class PictureAdapter extends ArrayAdapter<CommentImg> {
         private final CommentImg[] comments = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments();
 
-        private PictureAdapter() {
-            super(getActivity(), R.layout.fragment_comment_item, mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments());
+        private PictureAdapter(Activity context) {
+            super(context, R.layout.fragment_comment_item, mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments());
         }
 
         @Override
@@ -202,29 +202,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             ((TextView) row.findViewById(R.id.comment)).setText(comment.getComment());
             return row;
         }
-    }
-
-    /**
-     * Metodo incaricato di cambiare l'altezza della ListView contenente tutti i commenti dell'immagine
-     * abilita così lo scroll della ScrollView
-     */
-    public static void getListViewSize(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null)
-            return;
-
-        // Itero su listView per ricavare l'altezza totale
-        int totalHeight = listView.getPaddingBottom() + listView.getPaddingTop();
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
-            totalHeight += listItem.getMeasuredHeight();
-            Log.d("PROVA", listItem.getMeasuredHeight()+" ");
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount()) + 1000);
-        listView.setLayoutParams(params);
     }
 
     /**

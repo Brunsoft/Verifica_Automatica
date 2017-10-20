@@ -58,11 +58,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        progr_load = new ProgressDialog(getActivity());
-        progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-        progr_load.setCancelable(false);
-
+        how_many = 0;
         setHasOptionsMenu(true);
     }
 
@@ -73,20 +69,25 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         // controllo della disponibilità di rete
         checkNetworkAvailable();
 
-        how_many = 0;
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
 
-        progr_share = new ProgressDialog(getActivity());
+        progr_load = new ProgressDialog(getActivity());
+        progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
+        progr_load.setCancelable(false);
 
         return view;
     }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d("SRF_onActivityCreated", "how_many=" + how_many);
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
+
+        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length != 0)
+            progr_load.dismiss();
 
         onResultsChanged();
     }
@@ -118,10 +119,8 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     public void onImgLdDownloaded() {
         how_many++;
         results_adapter.notifyDataSetChanged();
-        if ( how_many == mvc.model.getResults(true).length ) {
-            how_many = 0;
+        if ( how_many == mvc.model.getResults(true).length )
             progr_load.dismiss();
-        }
     }
 
     @Override @UiThread
