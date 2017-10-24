@@ -42,6 +42,8 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * SearchResultsFragment è la classe che permette di visualizzare i risultati di ricerca
  */
@@ -69,6 +71,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         empty_results = (TextView)view.findViewById(R.id.empty_results);
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
+        progr_share = new ProgressDialog(getActivity());
 
         return view;
     }
@@ -117,16 +120,22 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     @Override @UiThread
     public void onImgFhdSaved() {
-        progr_share.dismiss();
-        Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
-        Log.d("IMG Uri: ", uri.toString());
+        try {
+            progr_share.dismiss();
+            Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
+            Log.d("IMG Uri: ", uri.toString());
 
-        Intent intent = new Intent().setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
+            Intent intent = new Intent().setAction(Intent.ACTION_SEND);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
+        }
+        catch (Exception e){
+            Log.e(TAG, e.toString());
+            return;
+        }
     }
 
     /**

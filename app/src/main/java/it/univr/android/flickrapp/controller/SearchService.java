@@ -35,11 +35,11 @@ public class SearchService extends IntentService {
     private final static String ACTION_SEARCH_LAST = "last";       // choice = 1
     private final static String ACTION_SEARCH_TOP = "top";         // choice = 2
     private final static String ACTION_SEARCH_OWN = "own";         // choice = 3
-    private final static String ACTION_SELECTION = "pic-sel";
-    private final static String ACTION_SELECTION_OWN = "pic-sel-own";
+    private final static String ACTION_SELECTION = "pic_sel";
+    private final static String ACTION_SELECTION_OWN = "pic_sel_own";
     private final static String ACTION_SHARE = "pic-share";
-    private final static String ACTION_SHARE_OWN = "pic-share-own";
-    private final static String PARAM_S = "s";
+    private final static String ACTION_SHARE_OWN = "pic_share_own";
+    private final static String PARAM_S = "search_str";
     private final static String API_KEY = "388f5641e6dc1ecac49678a156f375df";
 
     /**
@@ -131,62 +131,62 @@ public class SearchService extends IntentService {
         String query = "";
         boolean choice;
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
-        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SELECTION_OWN) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SHARE_OWN))
+        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN) || intent.getAction().equalsIgnoreCase(ACTION_SELECTION_OWN) || intent.getAction().equalsIgnoreCase(ACTION_SHARE_OWN))
             choice = false;
         else
             choice = true;
 
         switch (intent.getAction()) {
             case ACTION_SEARCH_STR:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50",
-                        API_KEY,
-                        (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SEARCH_LAST:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50",
-                        API_KEY);
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY);
                 break;
 
             case ACTION_SEARCH_TOP:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.interestingness.getList&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50",
-                        API_KEY);
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.interestingness.getList&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY);
                 break;
 
             case ACTION_SEARCH_OWN:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50",
-                        API_KEY,
-                        (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SELECTION:
             case ACTION_SELECTION_OWN:
-                // Se non è ancora stata scaricata l'immagine Fhd, procedo con il suo scaricamento
-                if (mvc.model.getResult(mvc.model.getImageSel(), choice ).getPicFhd() == null)
-                    downloadImageFhd( mvc.model.getImageSel(), choice );
+                try {
+                    // Se non è ancora stata scaricata l'immagine Fhd, procedo con il suo scaricamento
+                    if (mvc.model.getResult(mvc.model.getImageSel(), choice).getPicFhd() == null)
+                        downloadImageFhd(mvc.model.getImageSel(), mvc.model.getResult(mvc.model.getImageSel(), choice).getId(), choice);
 
-                mvc.model.clearComments( mvc.model.getImageSel(), choice );
-                Iterable<Model.CommentImg> comments = commentsSearch( mvc.model.getResult( mvc.model.getImageSel(), choice).getId() );
-                mvc.model.storeComments( comments, mvc.model.getImageSel(), choice );
+                    mvc.model.clearComments(mvc.model.getImageSel(), choice);
+                    Iterable<Model.CommentImg> comments = commentsSearch(mvc.model.getResult(mvc.model.getImageSel(), choice).getId());
+                    mvc.model.storeComments(comments, mvc.model.getImageSel(), choice);
 
-                // Se non è stato trovato alcun commento, lo notifico a tutte le View
-                if (!comments.iterator().hasNext())
-                    mvc.forEachView(View::onEmptyComments);
+                    // Se non è stato trovato alcun commento, lo notifico a tutte le View
+                    if (!comments.iterator().hasNext())
+                        mvc.forEachView(View::onEmptyComments);
+                }
+                catch (IndexOutOfBoundsException e) {
+                    Log.e(TAG, e.toString());
+                    return;
+                }
 
                 break;
 
             case ACTION_SHARE:
             case ACTION_SHARE_OWN:
-                saveImageFhd( mvc.model.getImageSel(), choice);
+                try {
+                    saveImageFhd( mvc.model.getImageSel(), mvc.model.getResult(mvc.model.getImageSel(), choice ).getId(), choice);
+                }
+                catch (IndexOutOfBoundsException e) {
+                    Log.e(TAG, e.toString());
+                    return;
+                }
                 break;
         }
-        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_LAST) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP) ||
-                intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN))
-        {
+        if (intent.getAction().equalsIgnoreCase(ACTION_SEARCH_STR) || intent.getAction().equalsIgnoreCase(ACTION_SEARCH_LAST) || intent.getAction().equalsIgnoreCase(ACTION_SEARCH_TOP) || intent.getAction().equalsIgnoreCase(ACTION_SEARCH_OWN)) {
             mvc.model.clearResults(choice);
             Iterable<Model.ImgInfo> results = pictureSearch(query);
 
@@ -209,7 +209,7 @@ public class SearchService extends IntentService {
     private void downloadImageLd(Iterable<Model.ImgInfo> results, boolean choice){
         int i = 0;
         for (Model.ImgInfo img : results) {
-            ImageService.downloadImage(SearchService.this, true, i, choice);
+            ImageService.downloadImage(SearchService.this, true, img.getId(), i, choice);
             i++;
         }
     }
@@ -219,8 +219,8 @@ public class SearchService extends IntentService {
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare (useremo solo l'url)
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    private void downloadImageFhd(int pos, boolean choice){
-        ImageService.downloadImage(SearchService.this, false, pos, choice);
+    private void downloadImageFhd(int pos, String photo_id, boolean choice){
+        ImageService.downloadImage(SearchService.this, false, photo_id, pos, choice);
     }
 
     /**
@@ -228,8 +228,8 @@ public class SearchService extends IntentService {
      * @param   pos posizione nell'array nel Model, qui troveremo le informazioni dell'immagine da scaricare
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    private void saveImageFhd(int pos, boolean choice){
-        ImageService.saveImage(SearchService.this, pos, choice);
+    private void saveImageFhd(int pos, String photo_id, boolean choice){
+        ImageService.saveImage(SearchService.this, photo_id, pos, choice);
     }
 
     /**
@@ -245,23 +245,17 @@ public class SearchService extends IntentService {
             URLConnection conn = url.openConnection();
             String answer = "";
 
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null)
+                answer += line + "\n";
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    answer += line + "\n";
-                }
-            }
-            finally {
-                if (in != null)
-                    in.close();
-            }
+            in.close();
 
             return parsePic(answer);
         }
         catch (IOException e) {
+            Log.e(TAG, e.toString());
             return Collections.emptyList();
         }
     }
@@ -345,23 +339,17 @@ public class SearchService extends IntentService {
             URLConnection conn = url.openConnection();
             String answer = "";
 
-            BufferedReader in = null;
-            try {
-                in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null)
+                answer += line + "\n";
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    answer += line + "\n";
-                }
-            }
-            finally {
-                if (in != null)
-                    in.close();
-            }
+            in.close();
 
             return parseCom(answer);
         }
         catch (IOException e) {
+            Log.e(TAG, e.toString());
             return Collections.emptyList();
         }
     }

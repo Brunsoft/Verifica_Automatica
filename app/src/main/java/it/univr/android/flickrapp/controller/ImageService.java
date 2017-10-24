@@ -37,7 +37,8 @@ public class ImageService extends ExecutorIntentService {
     private final static String ACTION_DWN_IMG_LD = "download_img_ld";          // is_ld = true
     private final static String ACTION_SAVE_IMG_FHD = "save_img_fhd";
     private final static String AUTHOR_PAGE = "";
-    private final static String PARAM_POS = "position";
+    private final static String PARAM_POS = "pos_photo_sel";
+    private final static String PARAM_ID = "id_photo_sel";
 
     /**
      * Costruttore della classe corrente
@@ -59,19 +60,21 @@ public class ImageService extends ExecutorIntentService {
      * Metodo che crea un intent per lanciare un servizio che andrà a scaricare l'immagine
      * @param   context contesto a cui si fa riferimento
      * @param   is_ld quale immagine scaricare, true > LD, false > FHD
+     * @param   photo_id id foto a cui facciamo riferimento
      * @param   position posizione della foto cui si fa rifermento nella lista situata nel Model
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
     @UiThread
-    static void downloadImage(Context context, boolean is_ld, int position, boolean choice) {
+    static void downloadImage(Context context, boolean is_ld, String photo_id, int position, boolean choice) {
         Intent intent = new Intent(context, ImageService.class);
-        if (is_ld) {
+
+        if (is_ld)
             intent.setAction(ACTION_DWN_IMG_LD);
-            intent.putExtra(PARAM_POS, position);
-        } else {
+        else
             intent.setAction(ACTION_DWN_IMG_FHD);
-            intent.putExtra(PARAM_POS, position);
-        }
+
+        intent.putExtra(PARAM_ID, photo_id);
+        intent.putExtra(PARAM_POS, position);
         intent.putExtra(AUTHOR_PAGE, choice);
         context.startService(intent);
     }
@@ -79,13 +82,15 @@ public class ImageService extends ExecutorIntentService {
     /**
      * Metodo che crea un intent per lanciare un servizio che andrà a salvare l'immagine
      * @param   context contesto a cui si fa riferimento
+     * @param   photo_id id foto a cui facciamo riferimento
      * @param   position posizione della foto cui si fa rifermento nella lista situata nel Model
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
     @UiThread
-    static void saveImage(Context context, int position, boolean choice) {
+    static void saveImage(Context context, String photo_id, int position, boolean choice) {
         Intent intent = new Intent(context, ImageService.class);
         intent.setAction(ACTION_SAVE_IMG_FHD);
+        intent.putExtra(PARAM_ID, photo_id);
         intent.putExtra(PARAM_POS, position);
         intent.putExtra(AUTHOR_PAGE, choice);
         context.startService(intent);
@@ -97,45 +102,59 @@ public class ImageService extends ExecutorIntentService {
      */
     @WorkerThread
     protected void onHandleIntent(Intent intent) {
-        String url = "";
-        int position;
-        boolean choice = intent.getBooleanExtra(AUTHOR_PAGE, true);
-        Log.d(TAG, "L'Intent scriverà in result?  "+ choice);
-        Bitmap img;
         MVC mvc = ((FlickrApplication) getApplication()).getMVC();
+        Bitmap img;
+        String url = "";
+        String photo_id = intent.getStringExtra(PARAM_ID);
+        int position = intent.getIntExtra(PARAM_POS, -1);
+        boolean choice = intent.getBooleanExtra(AUTHOR_PAGE, true);
+
         switch (intent.getAction()) {
             case ACTION_DWN_IMG_FHD:
                 Log.d(TAG, ACTION_DWN_IMG_FHD);
-                position = intent.getIntExtra(PARAM_POS, -1);
-                url = mvc.model.getResult(position, choice).getUrl_l();
-                img = getPic(url);
-                mvc.model.setImageFhdSel(img, position, choice);
+                try {
+                    url = mvc.model.getResult(position, choice).getUrl_l();
+                    img = getPic(url);
+                    mvc.model.setImageFhdSel(img, photo_id, position, choice);
+                }
+                catch (Exception e){
+                    Log.e(TAG, e.toString());
+                    return;
+                }
                 break;
 
             case ACTION_DWN_IMG_LD:
                 Log.d(TAG, ACTION_DWN_IMG_LD);
-                position = intent.getIntExtra(PARAM_POS, -1);
-                url = mvc.model.getResult(position, choice).getUrl_sq();
-                img = getPic(url);
-                mvc.model.setImageLdSel(img, position, choice);
-
+                try {
+                    url = mvc.model.getResult(position, choice).getUrl_sq();
+                    img = getPic(url);
+                    mvc.model.setImageLdSel(img, photo_id, position, choice);
+                }
+                catch (Exception e){
+                    Log.e(TAG, e.toString());
+                    return;
+                }
                 break;
 
             case ACTION_SAVE_IMG_FHD:
-                Log.d(TAG, ACTION_DWN_IMG_LD);
-                position = intent.getIntExtra(PARAM_POS, -1);
-                if (mvc.model.getResult(position, choice).getPicFhd() == null){
-                    url = mvc.model.getResult(position, choice).getUrl_l();
-                    img = getPic(url);
-                    mvc.model.setImageFhdSel(img, position, choice);
+                Log.d(TAG, ACTION_SAVE_IMG_FHD);
+                try {
+                    if (mvc.model.getResult(position, choice).getPicFhd() == null) {
+                        url = mvc.model.getResult(position, choice).getUrl_l();
+                        img = getPic(url);
+                        mvc.model.setImageFhdSel(img, photo_id, position, choice);
+                    }
+                    mvc.model.setUri(
+                            saveToInternalStorage(
+                                    mvc.model.getResult(position, choice).getPicFhd(),
+                                    mvc.model.getResult(position, choice).getId()),
+                            photo_id, position, choice);
+                    mvc.forEachView(View::onImgFhdSaved);
                 }
-
-                mvc.model.setUri(
-                        saveToInternalStorage(
-                                mvc.model.getResult(position, choice).getPicFhd(),
-                                mvc.model.getResult(position, choice).getId()),
-                        position, choice );
-                mvc.forEachView(View::onImgFhdSaved);
+                catch (Exception e){
+                    Log.e(TAG, e.toString());
+                    return;
+                }
                 break;
         }
     }
@@ -153,7 +172,8 @@ public class ImageService extends ExecutorIntentService {
             InputStream is = new java.net.URL(url).openStream();
             bm = BitmapFactory.decodeStream(is);
             is.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Log.e(TAG, "Errore durante lo scaricamento dell'img " + e.getMessage());
         }
         return bm;
@@ -184,7 +204,8 @@ public class ImageService extends ExecutorIntentService {
             img_fhd.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
             imgUri = Uri.fromFile(new File(path + id_img + ".png"));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Log.e(TAG, "Errore durante il salvataggio dell'imgFhd " + e.getMessage());
         }
         return imgUri;

@@ -18,6 +18,7 @@ import it.univr.android.flickrapp.view.View;
 
 @ThreadSafe
 public class Model {
+    private final static String TAG = Model.class.getName();
     private MVC mvc;
 
     /**
@@ -185,17 +186,20 @@ public class Model {
     /**
      * Metodo per settare l'immagine Bitmap Fhd dell'immagine selezionata
      * @param   img Bitmap da salvare
+     * @param   photo_id id dell'immagine alla quale ci si riferisce
      * @param   position posizione dell'immagine d'interesse nella lista corretta
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setImageFhdSel(Bitmap img, int position, boolean choice){
+    public void setImageFhdSel(Bitmap img, String photo_id, int position, boolean choice){
         if (choice)
             synchronized (results) {
-                results.get(position).setImgFhd(img);
+                if (results.get(position).getId().equalsIgnoreCase(photo_id))
+                    results.get(position).setImgFhd(img);
             }
         else
             synchronized (resultsAuthor) {
-                resultsAuthor.get(position).setImgFhd(img);
+                if (resultsAuthor.get(position).getId().equalsIgnoreCase(photo_id))
+                    resultsAuthor.get(position).setImgFhd(img);
             }
         mvc.forEachView(View::onImgFhdDownloaded);
     }
@@ -203,17 +207,20 @@ public class Model {
     /**
      * Metodo per settare l'immagine Bitmap Ld dell'immagine selezionata
      * @param   img Bitmap da salvare
+     * @param   photo_id id dell'immagine alla quale ci si riferisce
      * @param   position posizione dell'immagine d'interesse nella lista corretta
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setImageLdSel(Bitmap img, int position, boolean choice){
+    public void setImageLdSel(Bitmap img, String photo_id, int position, boolean choice){
         if (choice)
             synchronized (results) {
-                results.get(position).setImgLd(img);
+                if (results.get(position).getId().equalsIgnoreCase(photo_id))
+                    results.get(position).setImgLd(img);
             }
         else
             synchronized (resultsAuthor) {
-                resultsAuthor.get(position).setImgLd(img);
+                if (resultsAuthor.get(position).getId().equalsIgnoreCase(photo_id))
+                    resultsAuthor.get(position).setImgLd(img);
             }
 
         mvc.forEachView(View::onImgLdDownloaded);
@@ -222,17 +229,20 @@ public class Model {
     /**
      * Metodo per settare l'Uri dell'immagine Fhd selezionata per lo share
      * @param   uri Uri da salvare
+     * @param   photo_id id dell'immagine alla quale ci si riferisce
      * @param   position posizione dell'immagine d'interesse nella lista corretta
      * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
      */
-    public void setUri(Uri uri, int position, boolean choice){
+    public void setUri(Uri uri, String photo_id, int position, boolean choice){
         if (choice)
             synchronized (results) {
-                results.get(position).setUri(uri);
+                if (results.get(position).getId().equalsIgnoreCase(photo_id))
+                    results.get(position).setUri(uri);
             }
         else
             synchronized (resultsAuthor) {
-                resultsAuthor.get(position).setUri(uri);
+                if (resultsAuthor.get(position).getId().equalsIgnoreCase(photo_id))
+                    resultsAuthor.get(position).setUri(uri);
             }
     }
 
@@ -332,11 +342,11 @@ public class Model {
      */
     public ImgInfo getResult(int pos, boolean choice) {
         if (choice)
-            synchronized (this.results)  {
+            synchronized (this.results) {
                 return this.results.get(pos);
             }
         else
-            synchronized (this.resultsAuthor)  {
+            synchronized (this.resultsAuthor) {
                 return this.resultsAuthor.get(pos);
             }
     }
