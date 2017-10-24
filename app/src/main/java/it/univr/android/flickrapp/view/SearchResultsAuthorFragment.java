@@ -31,10 +31,7 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
      */
     @Override @UiThread
     public void onImgLdDownloaded() {
-        how_many++;
         results_adapter.notifyDataSetChanged();
-        if ( how_many == mvc.model.getResults(false).length )
-            progr_load.dismiss();
     }
 
     /**

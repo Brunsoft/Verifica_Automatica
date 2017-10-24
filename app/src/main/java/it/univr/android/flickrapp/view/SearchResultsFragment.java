@@ -49,16 +49,13 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;
-    protected int how_many;
     protected ArrayAdapter<ImgInfo> results_adapter;
 
-    protected ProgressDialog progr_load;    // mostra il progresso del caricamento delle img Ld
     private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Ld
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        how_many = 0;
         setHasOptionsMenu(true);
     }
 
@@ -73,21 +70,13 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
 
-        progr_load = new ProgressDialog(getActivity());
-        progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-        progr_load.setCancelable(false);
-
         return view;
     }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d("SRF_onActivityCreated", "how_many=" + how_many);
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
-
-        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length != 0)
-            progr_load.dismiss();
 
         onResultsChanged();
     }
@@ -106,7 +95,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onEmptyResult() {
         empty_results.setText(R.string.empty_results);
-        progr_load.dismiss();
     }
 
     @Override @UiThread
@@ -117,10 +105,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     @Override @UiThread
     public void onImgLdDownloaded() {
-        how_many++;
         results_adapter.notifyDataSetChanged();
-        if ( how_many == mvc.model.getResults(true).length )
-            progr_load.dismiss();
     }
 
     @Override @UiThread
