@@ -22,6 +22,14 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true" />
 
+        <ProgressBar
+            android:id="@+id/progr_bar_picture_fhd"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:backgroundTint="#ffffff"
+            android:indeterminateTint="#1a09d6"/>
+
         <ListView
             android:id="@+id/picture_comments"
             android:layout_width="match_parent"

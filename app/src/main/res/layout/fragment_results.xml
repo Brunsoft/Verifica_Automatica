@@ -8,6 +8,15 @@
     android:layout_height="wrap_content"
     tools:context="it.univr.android.flickrapp.view.SearchResultsFragment">
 
+    <ProgressBar
+        android:id="@+id/progr_bar_results"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:backgroundTint="#ffffff"
+        android:paddingTop="5pt"
+        android:indeterminateTint="#1a09d6"/>
+
     <ListView
         android:id="@+id/results_list"
         android:layout_width="match_parent"

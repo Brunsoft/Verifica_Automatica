@@ -33,6 +33,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,13 +53,23 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected TextView empty_results;
     protected ListView results_list;
     protected ArrayAdapter<ImgInfo> results_adapter;
+    protected int count_results;
+    protected boolean empty_result;
+    protected ProgressBar progr_load_results;
 
     private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Ld
 
     @Override @UiThread
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            count_results = savedInstanceState.getInt(TAG + "count_results");
+            empty_result = savedInstanceState.getBoolean(TAG + "empty_result");
+        }else {
+            count_results = -1;
+            empty_result = false;
+        }
     }
 
     @Nullable @Override @UiThread
@@ -72,6 +83,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         results_list = (ListView)view.findViewById(R.id.results_list);
         registerForContextMenu(results_list);
         progr_share = new ProgressDialog(getActivity());
+        progr_load_results = (ProgressBar)view.findViewById(R.id.progr_bar_results);
 
         return view;
     }
@@ -81,15 +93,43 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        onResultsChanged();
+        if (mvc.controller.firstRun)
+            progr_load_results.setVisibility(View.GONE);
+        else
+            progr_load_results.setVisibility(View.VISIBLE);
+
+        // Sono stati trovati risultati
+        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length != 0)
+            onResultsChanged();
+
+        // Tutte le immagini scaricate
+        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            onImgLdDownloaded();
+
+        // Nessun risultato trovato
+        if (empty_result)
+            onEmptyResult();
+
+    }
+
+    @Override @UiThread
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(TAG + "count_results", count_results);
+        outState.putBoolean(TAG + "empty_result", empty_result);
     }
 
     @Override @UiThread
     public void onResultsChanged() {
         // switchedView -> true siamo in SearchResultsFragment
         mvc.controller.setSwitchedView(true);
+        if (count_results == -1)
+            count_results = 0;
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
+
+        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            progr_load_results.setVisibility(View.GONE);
     }
 
     /**
@@ -97,7 +137,9 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     @Override @UiThread
     public void onEmptyResult() {
+        empty_result = true;
         empty_results.setText(R.string.empty_results);
+        progr_load_results.setVisibility(View.GONE);
     }
 
     @Override @UiThread
@@ -109,6 +151,13 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onImgLdDownloaded() {
         results_adapter.notifyDataSetChanged();
+        if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            count_results++;
+
+        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            progr_load_results.setVisibility(View.GONE);
+
+        Log.d(TAG, "count_results -> " + count_results + " di " + mvc.model.getResults(mvc.controller.getSwitchedView()).length);
     }
 
     @Override @UiThread

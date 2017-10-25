@@ -44,7 +44,8 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private Button search_last;
     private Button search_top;
     private TextView message;
-    private int countResults;
+    private int count_results;
+    protected boolean empty_results;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +56,14 @@ public class SearchFragment extends Fragment implements AbstractFragment {
             setHasOptionsMenu(true);
         else
             setHasOptionsMenu(false);
+
+        if (savedInstanceState != null) {
+            empty_results = savedInstanceState.getBoolean(TAG + "empty_results");
+            count_results = savedInstanceState.getInt(TAG + "count_results");
+        } else {
+            empty_results = false;
+            count_results = -1;
+        }
     }
 
     @Nullable @Override @UiThread
@@ -71,7 +80,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last = (Button) view.findViewById(R.id.search_last);
         search_top = (Button) view.findViewById(R.id.search_top);
         message = (TextView) view.findViewById(R.id.title);
-        countResults = 0;
+        count_results = 0;
 
         search_str.setOnClickListener(__ -> search(0));         // ricerca delle img per stringa
         search_last.setOnClickListener(__ -> search(1));        // ricerca delle ultime img caricate
@@ -84,27 +93,42 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
-        onResultsChanged();
+        onImgLdDownloaded();
     }
 
     @Override @UiThread
-    public void onResultsChanged() { }
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(TAG + "count_results", count_results);
+        outState.putBoolean(TAG + "empty_results", empty_results);
+    }
 
     @Override @UiThread
-    public void onEmptyResult() { }
+    public void onResultsChanged() {
+        if (count_results == -1)
+            count_results = 0;
+        empty_results = false;
+    }
+
+    @Override @UiThread
+    public void onEmptyResult() {
+        empty_results = true;
+    }
 
     @Override @UiThread
     public void onEmptyComments() { }
 
     @Override @UiThread
     public void onImgLdDownloaded() {
-        countResults++;
-        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length == 0 || countResults == mvc.model.getResults(mvc.controller.getSwitchedView()).length){
+        if (count_results != mvc.model.getResults(true).length)
+            count_results++;
+
+        if (empty_results || count_results == mvc.model.getResults(true).length){
             search_str.setEnabled(true);
             search_last.setEnabled(true);
             search_top.setEnabled(true);
-            countResults = 0;
         }
+
     }
 
     @Override @UiThread

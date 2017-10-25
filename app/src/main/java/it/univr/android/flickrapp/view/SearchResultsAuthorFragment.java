@@ -22,16 +22,15 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
+        // switchedView -> true siamo in SearchResultsFragment
+        mvc.controller.setSwitchedView(false);
+        if (count_results == -1)
+            count_results = 0;
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
-    }
 
-    /**
-     * Metodo chiamato dal Controller quando lo scaricamento dell'immagine Ld è completato
-     */
-    @Override @UiThread
-    public void onImgLdDownloaded() {
-        results_adapter.notifyDataSetChanged();
+        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            progr_load_results.setVisibility(View.GONE);
     }
 
     /**

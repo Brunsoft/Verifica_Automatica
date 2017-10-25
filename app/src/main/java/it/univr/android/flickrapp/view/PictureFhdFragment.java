@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +38,8 @@ import it.univr.android.flickrapp.FlickrApplication;
 import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
+
+import static android.content.ContentValues.TAG;
 
 /*
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
@@ -48,14 +51,19 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private ListView img_comment;
     private TextView no_comments;
     protected ArrayAdapter<CommentImg> comments_adapter;
+    private boolean empty_comments;
+    private ProgressBar progr_load_content;
 
-    private ProgressDialog progr_load;      // mostra il progresso del caricamento dell'img Fhd e i commenti
     private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Fhd
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null)
+            empty_comments = savedInstanceState.getBoolean(TAG + "empty_comments");
+        else
+            empty_comments = false;
     }
 
     @Nullable @Override @UiThread
@@ -68,7 +76,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
         no_comments = (TextView)view.findViewById(R.id.no_comments);
-        progr_load = new ProgressDialog(getActivity());
+        progr_load_content = (ProgressBar)view.findViewById(R.id.progr_bar_picture_fhd);
+
         progr_share = new ProgressDialog(getActivity());
 
         return view;
@@ -79,20 +88,26 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        // Se l'immagine Fhd non è disponibili nei risultati mostro "Caricamento in corso" nell'attesa del completamento del download
-        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() == null) {
-            progr_load = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-            progr_load.setCancelable(false);
-        }
-        else if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length == 0){
-            onImgFhdDownloaded();
-            onEmptyComments();
-        }
-        else{
-            onImgFhdDownloaded();
-            onResultsChanged();
-        }
+        progr_load_content.setVisibility(View.VISIBLE);
 
+        // Immagine Scaricata
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() != null)
+            onImgFhdDownloaded();
+
+        // Commenti Trovati
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length != 0)
+            onResultsChanged();
+
+        // Nessun Commento Trovato
+        if (empty_comments)
+            onEmptyComments();
+
+    }
+
+    @Override @UiThread
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(TAG + "empty_comments", empty_comments);
     }
 
     /**
@@ -132,6 +147,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() != null)
+            progr_load_content.setVisibility(View.GONE);
         comments_adapter = new PictureAdapter(getActivity());
         img_comment.setAdapter(comments_adapter);
     }
@@ -144,8 +161,9 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
      */
     @Override @UiThread
     public void onEmptyComments() {
-        getView().findViewById(R.id.picture_comments).setVisibility(View.GONE);
+        empty_comments = true;
         no_comments.setText(R.string.empty_comments);
+        progr_load_content.setVisibility(View.GONE);
     }
 
     @Override @UiThread
@@ -156,7 +174,9 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
      */
     @Override @UiThread
     public void onImgFhdDownloaded() {
-        progr_load.dismiss();
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length != 0 || empty_comments)
+            progr_load_content.setVisibility(View.GONE);
+
         img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd());
     }
 
@@ -167,6 +187,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
+        progr_load_content.setVisibility(View.INVISIBLE);
         Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
         Log.d("IMG Uri: ", uri.toString());
 

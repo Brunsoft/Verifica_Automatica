@@ -193,7 +193,7 @@ public class SearchService extends IntentService {
             // Se non è stato trovato alcun risultato, lo notifico a tutte le View
             if (!results.iterator().hasNext()) {
                 mvc.forEachView(View::onEmptyResult);
-                mvc.forEachView(View::onImgLdDownloaded);
+                return;
             }
 
             mvc.model.storeResults(results, choice);

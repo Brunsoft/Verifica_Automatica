@@ -13,6 +13,7 @@ import it.univr.android.flickrapp.view.View;
 public class Controller {
     private MVC mvc;
     private boolean switchedView = true;
+    public boolean firstRun = true;
 
     /**
      * Metodo per settare l'mvc
@@ -31,6 +32,7 @@ public class Controller {
     @UiThread
     public void search(Context context, int choice, String s) {
         SearchService.search(context, choice, s);
+        firstRun = false;
     }
 
     /**
