@@ -124,7 +124,6 @@ public class ImageService extends ExecutorIntentService {
                 break;
 
             case ACTION_DWN_IMG_LD:
-                Log.d(TAG, ACTION_DWN_IMG_LD);
                 try {
                     url = mvc.model.getResult(position, choice).getUrl_sq();
                     img = getPic(url);
@@ -137,7 +136,6 @@ public class ImageService extends ExecutorIntentService {
                 break;
 
             case ACTION_SAVE_IMG_FHD:
-                Log.d(TAG, ACTION_SAVE_IMG_FHD);
                 try {
                     if (mvc.model.getResult(position, choice).getPicFhd() == null) {
                         url = mvc.model.getResult(position, choice).getUrl_l();
@@ -191,7 +189,7 @@ public class ImageService extends ExecutorIntentService {
         try {
             // Save into folder /storage/emulated/0/FlickrApp/
             String path = Environment.getExternalStorageDirectory().getPath() + "/FlickrApp/";
-            Log.d(TAG, path);
+            //Log.d(TAG, path);
             File file = new File(path);
 
             if (!file.exists()) {

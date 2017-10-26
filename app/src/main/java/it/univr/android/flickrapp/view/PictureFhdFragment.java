@@ -29,8 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,17 +41,17 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
 
-import static android.content.ContentValues.TAG;
-
 /*
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
  * SearchResultsFragment o SearchResultsAuthorFragment in Fhd e i relativi commenti
  */
 public class PictureFhdFragment extends Fragment implements AbstractFragment {
+    private final static String TAG = PictureFhdFragment.class.getName();
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
+    private ScrollView scroll_view;
     protected ArrayAdapter<CommentImg> comments_adapter;
     private boolean empty_comments;
     private ProgressBar progr_load_content;
@@ -76,6 +78,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         img_fhd = (ImageView)view.findViewById(R.id.picture_fhd);
         img_comment = (ListView)view.findViewById(R.id.picture_comments);
         no_comments = (TextView)view.findViewById(R.id.no_comments);
+        scroll_view = (ScrollView)view.findViewById(R.id.scroll_result);
         progr_load_content = (ProgressBar)view.findViewById(R.id.progr_bar_picture_fhd);
 
         progr_share = new ProgressDialog(getActivity());
@@ -147,10 +150,12 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
-        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() != null)
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() != null) {
             progr_load_content.setVisibility(View.GONE);
-        comments_adapter = new PictureAdapter(getActivity());
-        img_comment.setAdapter(comments_adapter);
+            comments_adapter = new PictureAdapter(getActivity());
+            img_comment.setAdapter(comments_adapter);
+            getListViewSize(img_comment);
+        }
     }
 
     @Override @UiThread
@@ -162,8 +167,11 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onEmptyComments() {
         empty_comments = true;
-        no_comments.setText(R.string.empty_comments);
-        progr_load_content.setVisibility(View.GONE);
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd() != null) {
+            progr_load_content.setVisibility(View.GONE);
+            no_comments.setText(R.string.empty_comments);
+            getListViewSize(img_comment);
+        }
     }
 
     @Override @UiThread
@@ -174,9 +182,13 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
      */
     @Override @UiThread
     public void onImgFhdDownloaded() {
-        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length != 0 || empty_comments)
+        if (mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments().length != 0 || empty_comments) {
             progr_load_content.setVisibility(View.GONE);
-
+            if (empty_comments)
+                onEmptyComments();
+            else
+                onResultsChanged();
+        }
         img_fhd.setImageBitmap(mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getPicFhd());
     }
 
@@ -187,7 +199,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
-        progr_load_content.setVisibility(View.INVISIBLE);
         Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
         Log.d("IMG Uri: ", uri.toString());
 
@@ -254,6 +265,30 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             else
                 mvc.controller.shareOwnPictureSel(getActivity());
         }
+    }
+
+    /*
+     * Metodo incaricato di cambiare l'altezza della ListView contenente tutti i commenti dell'immagine
+     * abilita così lo scroll della ScrollView
+     */
+    public void getListViewSize(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        // Itero su listView per ricavare l'altezza totale
+        int totalHeight = listView.getPaddingBottom() + listView.getPaddingTop();
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+
+        scroll_view.smoothScrollTo(0,0);
     }
 
 }
