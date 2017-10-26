@@ -92,7 +92,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        if (mvc.controller.firstRun)
+        if (mvc.controller.getFirstRun())
             progr_load_results.setVisibility(View.GONE);
         else
             progr_load_results.setVisibility(View.VISIBLE);

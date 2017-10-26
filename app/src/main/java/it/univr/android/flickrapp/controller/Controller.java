@@ -13,7 +13,7 @@ import it.univr.android.flickrapp.view.View;
 public class Controller {
     private MVC mvc;
     private boolean switchedView = true;
-    public boolean firstRun = true;
+    private boolean firstRun = true;
 
     /**
      * Metodo per settare l'mvc
@@ -98,17 +98,20 @@ public class Controller {
      * @param   switchedView se true punta a SearchResultFragment, false punta a SearchResultAuthorFragment
      */
     @UiThread
-    public void setSwitchedView(boolean switchedView) {
-        this.switchedView = switchedView;
-    }
+    public void setSwitchedView(boolean switchedView) { this.switchedView = switchedView; }
 
     /**
      * Metodo per ricavare il valore relativo a switchedView
      * @return  switchedView valore boolean che rappresenta la View corrente tra SearchResultFragment e SearchResultAuthorFragment
      */
     @UiThread
-    public boolean getSwitchedView() {
-        return switchedView;
-    }
+    public boolean getSwitchedView() { return switchedView; }
+
+    /**
+     * Metodo per ricavare il valore relativo a firstRun
+     * @return  firstRun valore boolean che ci fa capire se abbiamo mai eseguito una ricerca
+     */
+    @UiThread
+    public boolean getFirstRun() { return firstRun; }
 
 }
