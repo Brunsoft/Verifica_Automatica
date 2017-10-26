@@ -98,9 +98,7 @@ public class Controller {
      * @param   switchedView se true punta a SearchResultFragment, false punta a SearchResultAuthorFragment
      */
     @UiThread
-    public void setSwitchedView(boolean switchedView) {
-        this.switchedView = switchedView;
-    }
+    public void setSwitchedView(boolean switchedView) { this.switchedView = switchedView; }
 
     /**
      * Metodo per ricavare il valore relativo a switchedView
@@ -114,8 +112,6 @@ public class Controller {
      * @return  firstRun valore boolean che ci fa capire se abbiamo mai eseguito una ricerca
      */
     @UiThread
-    public boolean getFirstRun() {
-        return firstRun;
-    }
+    public boolean getFirstRun() { return firstRun; }
 
 }
