@@ -43,7 +43,8 @@
             android:textStyle="italic"
             android:textSize="15dp"
             android:textColor="#6c6c6c"
-            android:layout_marginBottom="2dp" />
+            android:layout_marginBottom="2dp"
+            android:maxLines="1" />
 
     </LinearLayout>
 

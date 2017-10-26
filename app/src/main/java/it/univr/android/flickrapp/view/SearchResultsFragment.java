@@ -43,12 +43,11 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * SearchResultsFragment è la classe che permette di visualizzare i risultati di ricerca
  */
 public class SearchResultsFragment extends Fragment implements AbstractFragment {
+    private final static String TAG = SearchResultsFragment.class.getName();
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;
@@ -93,7 +92,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        if (mvc.controller.firstRun)
+        if (mvc.controller.getFirstRun())
             progr_load_results.setVisibility(View.GONE);
         else
             progr_load_results.setVisibility(View.VISIBLE);
@@ -123,8 +122,11 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     public void onResultsChanged() {
         // switchedView -> true siamo in SearchResultsFragment
         mvc.controller.setSwitchedView(true);
+        progr_load_results.setMax(mvc.model.getResults(mvc.controller.getSwitchedView()).length);
+
         if (count_results == -1)
             count_results = 0;
+
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
 
@@ -151,9 +153,10 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onImgLdDownloaded() {
         results_adapter.notifyDataSetChanged();
-        if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+        if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length) {
             count_results++;
-
+            progr_load_results.setProgress(count_results);
+        }
         if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
             progr_load_results.setVisibility(View.GONE);
 
@@ -288,10 +291,12 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             ((TextView) row.findViewById(R.id.title)).setText(imgInfo.getTitle());
             ((TextView) row.findViewById(R.id.author_name)).setText(imgInfo.getAuthor_name());
 
-            if (mvc.controller.getSwitchedView())
-                row.setOnClickListener(__ -> viewImageSel(position));
-            else
-                row.setOnClickListener(__ -> viewOwnImageSel(position));
+            // aggiungo il Listener solamente quando ho completato il caricamento di tutte le anteprime
+            if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+                if (mvc.controller.getSwitchedView())
+                    row.setOnClickListener(__ -> viewImageSel(position));
+                else
+                    row.setOnClickListener(__ -> viewOwnImageSel(position));
 
             return row;
         }
