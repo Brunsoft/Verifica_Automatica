@@ -47,7 +47,7 @@ import it.univr.android.flickrapp.model.Model.ImgInfo;
  * SearchResultsFragment è la classe che permette di visualizzare i risultati di ricerca
  */
 public class SearchResultsFragment extends Fragment implements AbstractFragment {
-    private final static String TAG = SearchResultsFragment.class.getName();
+    protected final static String TAG = SearchResultsFragment.class.getName();
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;
@@ -56,7 +56,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected boolean empty_result;
     protected ProgressBar progr_load_results;
 
-    private ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Ld
+    protected ProgressDialog progr_share;     // mostra il progresso del processo di condivisione dell'img Ld
 
     @Override @UiThread
     public void onCreate(Bundle savedInstanceState) {

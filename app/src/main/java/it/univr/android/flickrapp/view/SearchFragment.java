@@ -45,7 +45,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private Button search_top;
     private TextView message;
     private int count_results;
-    protected boolean empty_results;
+    private boolean empty_results;
 
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {

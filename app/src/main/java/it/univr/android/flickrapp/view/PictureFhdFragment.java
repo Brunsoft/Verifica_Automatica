@@ -49,7 +49,7 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     private ImageView img_fhd;
     private ListView img_comment;
     private TextView no_comments;
-    protected ArrayAdapter<CommentImg> comments_adapter;
+    private ArrayAdapter<CommentImg> comments_adapter;
     private boolean empty_comments;
     private ProgressBar progr_load_content;
 
