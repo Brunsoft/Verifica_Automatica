@@ -39,13 +39,12 @@ import it.univr.android.flickrapp.MVC;
 import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model.CommentImg;
 
-import static android.content.ContentValues.TAG;
-
 /*
  * PictureFhdFragment è la classe che permette di visualizzare l'immagine selezionata in
  * SearchResultsFragment o SearchResultsAuthorFragment in Fhd e i relativi commenti
  */
 public class PictureFhdFragment extends Fragment implements AbstractFragment {
+    private final static String TAG = PictureFhdFragment.class.getName();
     private MVC mvc;
     private ImageView img_fhd;
     private ListView img_comment;

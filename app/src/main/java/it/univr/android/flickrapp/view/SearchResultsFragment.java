@@ -43,12 +43,11 @@ import it.univr.android.flickrapp.R;
 import it.univr.android.flickrapp.model.Model;
 import it.univr.android.flickrapp.model.Model.ImgInfo;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * SearchResultsFragment è la classe che permette di visualizzare i risultati di ricerca
  */
 public class SearchResultsFragment extends Fragment implements AbstractFragment {
+    private final static String TAG = SearchResultsFragment.class.getName();
     protected MVC mvc;
     protected TextView empty_results;
     protected ListView results_list;

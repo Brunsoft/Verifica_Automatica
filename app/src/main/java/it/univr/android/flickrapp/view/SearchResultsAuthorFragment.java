@@ -5,12 +5,9 @@ package it.univr.android.flickrapp.view;
  * @version 1.0 */
 
 import android.support.annotation.UiThread;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 
 import it.univr.android.flickrapp.R;
 
@@ -45,21 +42,4 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
                 menu.add(Menu.NONE, i, i, menuItems[i]);
     }
 
-    /**
-     * Differisce dal metodo ereditato solamente perché viene concessa la sola possibilità di condividere l'immagine
-     */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        switch (item.getItemId()){
-            case 0:
-                Log.d("SRAF", "Scelta SHARE");
-                // C'è connessione e ci sono i permessi di lettura/scrittura in memoria e condivido
-                if (checkNetworkAvailable())
-                    checkDataPermission(info.position);
-
-                break;
-        }
-        return super.onContextItemSelected(item);
-    }
 }
