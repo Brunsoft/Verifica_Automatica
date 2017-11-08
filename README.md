@@ -37,7 +37,7 @@ Scelte Implementative
 -------------
 
 - Salvataggio immagine FHD, per la condivisione, eseguito nella cartella file:///storage/emulated/0/FlickrApp/XXXXXXXX.png
-- Per evitare ricaricamenti inutili e a volte lenti, abbiamo scelto di memorizzare all'interno dell'oggetto ImgInfo anche l'immagine FHD in Bitmap.
+- Per evitare ricaricamenti inutili e a volte lenti, abbiamo scelto di memorizzare all'interno dell'oggetto ImgInfo anche l'immagine Bitmap FHD.
 - Data la similarità delle sezioni SearchResultsFragment e SearchResultsAuthorFragment abbiamo scelto di rendere SearchResultsAuthorFragment sottoclasse di SearchResultsFragment così da ereditarne i metodi.
 - Si è scelto di disabilitare i pulsanti di ricerca fino al completamento di tutte le Intent Services, utilizzate per scaricare le immagini risultato.
 
