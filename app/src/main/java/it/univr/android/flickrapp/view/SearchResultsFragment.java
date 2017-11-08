@@ -186,7 +186,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         }
         catch (Exception e){
             Log.e(TAG, e.toString());
-            return;
         }
     }
 
@@ -353,7 +352,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         } else {
             // Permesso Garantito
             progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-            progr_share.setCancelable(false);
             mvc.model.setImageSel(position);
 
             if (mvc.controller.getSwitchedView())

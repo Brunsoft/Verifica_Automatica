@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
@@ -220,8 +221,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
             super(context, R.layout.fragment_comment_item, mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getComments());
         }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             View row = convertView;
 
             if (row == null) {
@@ -258,7 +259,6 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
         } else {
             // Permesso Garantito
             progr_share = ProgressDialog.show(getActivity(), getResources().getText(R.string.wait_title), getResources().getText(R.string.wait_mess), true);
-            progr_share.setCancelable(false);
 
             if (mvc.controller.getSwitchedView())
                 mvc.controller.sharePictureSel(getActivity());

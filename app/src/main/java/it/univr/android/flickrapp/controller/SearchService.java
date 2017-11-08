@@ -12,7 +12,6 @@ import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -168,7 +167,7 @@ public class SearchService extends IntentService {
                     if (!comments.iterator().hasNext())
                         mvc.forEachView(View::onEmptyComments);
                 }
-                catch (IndexOutOfBoundsException e) {
+                catch (Exception e) {
                     Log.e(TAG, e.toString());
                     return;
                 }
@@ -180,7 +179,7 @@ public class SearchService extends IntentService {
                 try {
                     saveImageFhd( mvc.model.getImageSel(), mvc.model.getResult(mvc.model.getImageSel(), choice ).getId(), choice);
                 }
-                catch (IndexOutOfBoundsException e) {
+                catch (Exception e) {
                     Log.e(TAG, e.toString());
                     return;
                 }
@@ -193,6 +192,7 @@ public class SearchService extends IntentService {
             // Se non è stato trovato alcun risultato, lo notifico a tutte le View
             if (!results.iterator().hasNext()) {
                 mvc.forEachView(View::onEmptyResult);
+
                 return;
             }
 
@@ -254,7 +254,7 @@ public class SearchService extends IntentService {
 
             return parsePic(answer);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             Log.e(TAG, e.toString());
             return Collections.emptyList();
         }
@@ -348,7 +348,7 @@ public class SearchService extends IntentService {
 
             return parseCom(answer);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             Log.e(TAG, e.toString());
             return Collections.emptyList();
         }

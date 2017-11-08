@@ -16,7 +16,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -203,7 +202,7 @@ public class ImageService extends ExecutorIntentService {
             out.close();
             imgUri = Uri.fromFile(new File(path + id_img + ".png"));
         }
-        catch (IOException e) {
+        catch (Exception e) {
             Log.e(TAG, "Errore durante il salvataggio dell'imgFhd " + e.getMessage());
         }
         return imgUri;

@@ -46,7 +46,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private TextView message;
     private int count_results;
     private boolean empty_results;
-
+    
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +113,9 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onEmptyResult() {
         empty_results = true;
+        search_str.setEnabled(true);
+        search_last.setEnabled(true);
+        search_top.setEnabled(true);
     }
 
     @Override @UiThread
@@ -147,7 +150,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
             switch (choice) {
                 case 0:
                     try {
-                        s = new String(insertString.getText().toString().replace(" ", "-"));
+                        s = insertString.getText().toString().replace(" ", "-");
                         if (s.isEmpty())
                             throw new IllegalArgumentException();
                     } catch (IllegalArgumentException e) {

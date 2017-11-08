@@ -159,7 +159,7 @@ public class Model {
      * Metodo per settare il valore di image_sel
      * @param   image_sel immagine attualmente selezionata e pronta per la visualizzazione Fhd o Share
      */
-    public void setImageSel(int image_sel){
+    public void setImageSel(int image_sel) {
         synchronized (this) {
             this.image_sel = image_sel;
         }
@@ -171,7 +171,7 @@ public class Model {
      */
     public int getImageSel(){
         synchronized (this) {
-            return this.image_sel;
+            return image_sel;
         }
     }
 
@@ -258,9 +258,9 @@ public class Model {
                     this.results.add(img);
             }
         else
-            synchronized (this.resultsAuthor) {
+            synchronized (resultsAuthor) {
                 for (ImgInfo img: results)
-                    this.resultsAuthor.add(img);
+                    resultsAuthor.add(img);
             }
 
         mvc.forEachView(View::onResultsChanged);
@@ -272,12 +272,12 @@ public class Model {
      */
     public void clearResults(boolean choice) {
         if (choice)
-            synchronized (this.results) {
-                this.results.clear();
+            synchronized (results) {
+                results.clear();
             }
         else
-            synchronized (this.resultsAuthor) {
-                this.resultsAuthor.clear();
+            synchronized (resultsAuthor) {
+                resultsAuthor.clear();
             }
     }
 
@@ -289,14 +289,14 @@ public class Model {
      */
     public void storeComments(Iterable<CommentImg> commentList, int pos, boolean choice) {
         if (choice)
-            synchronized (this.results.get(pos).commentList) {
+            synchronized (results) {
                 for (CommentImg comment: commentList)
-                    this.results.get(pos).commentList.add(comment);
+                    results.get(pos).commentList.add(comment);
             }
         else
-            synchronized (this.resultsAuthor.get(pos).commentList) {
+            synchronized (resultsAuthor) {
                 for (CommentImg comment: commentList)
-                    this.resultsAuthor.get(pos).commentList.add(comment);
+                    resultsAuthor.get(pos).commentList.add(comment);
             }
 
         this.mvc.forEachView(View::onResultsChanged);
@@ -309,12 +309,12 @@ public class Model {
      */
     public void clearComments(int pos, boolean choice) {
         if (choice)
-            synchronized (this.results.get(pos).commentList) {
-                this.results.get(pos).commentList.clear();
+            synchronized (results) {
+                results.get(pos).commentList.clear();
             }
         else
-            synchronized (this.resultsAuthor.get(pos).commentList) {
-                this.resultsAuthor.get(pos).commentList.clear();
+            synchronized (resultsAuthor) {
+                resultsAuthor.get(pos).commentList.clear();
             }
     }
 
@@ -325,12 +325,12 @@ public class Model {
      */
     public ImgInfo[] getResults(boolean choice) {
         if (choice)
-            synchronized (this.results) {
-                return this.results.toArray(new ImgInfo[this.results.size()]);
+            synchronized (results) {
+                return results.toArray(new ImgInfo[this.results.size()]);
             }
         else
-            synchronized (this.resultsAuthor) {
-                return this.resultsAuthor.toArray(new ImgInfo[this.resultsAuthor.size()]);
+            synchronized (resultsAuthor) {
+                return resultsAuthor.toArray(new ImgInfo[this.resultsAuthor.size()]);
             }
     }
 
@@ -342,12 +342,12 @@ public class Model {
      */
     public ImgInfo getResult(int pos, boolean choice) {
         if (choice)
-            synchronized (this.results) {
-                return this.results.get(pos);
+            synchronized (results) {
+                return results.get(pos);
             }
         else
-            synchronized (this.resultsAuthor) {
-                return this.resultsAuthor.get(pos);
+            synchronized (resultsAuthor) {
+                return resultsAuthor.get(pos);
             }
     }
 
