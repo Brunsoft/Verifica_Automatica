@@ -137,7 +137,7 @@ public class SearchService extends IntentService {
 
         switch (intent.getAction()) {
             case ACTION_SEARCH_STR:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SEARCH_LAST:
@@ -149,7 +149,7 @@ public class SearchService extends IntentService {
                 break;
 
             case ACTION_SEARCH_OWN:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SELECTION:
