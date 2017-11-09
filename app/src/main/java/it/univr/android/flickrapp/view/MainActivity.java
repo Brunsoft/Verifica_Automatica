@@ -29,14 +29,11 @@ public class MainActivity extends Activity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(this, getResources().getText(R.string.storage_permission_granted), Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(this, getResources().getText(R.string.storage_permission_denied), Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(this, getResources().getText(R.string.storage_permission_granted), Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, getResources().getText(R.string.storage_permission_denied), Toast.LENGTH_SHORT).show();
         }
     }
 }

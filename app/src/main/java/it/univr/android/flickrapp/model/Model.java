@@ -52,19 +52,18 @@ public class Model {
         private final String author_id;
         private final String author_name;
         private final String url_sq;
-        private final String url_l;
+        private String url_l;
         private Uri uri;
         private Bitmap img_thmb;
         private Bitmap img_fhd;
         private final LinkedList<CommentImg> commentList;
 
-        public ImgInfo(String id, String title, String author_id, String author_name, String url_sq, String url_l, Bitmap bmp) {
+        public ImgInfo(String id, String title, String author_id, String author_name, String url_sq, Bitmap bmp) {
             this.id = id;
             this.title = title;
             this.author_id = author_id;
             this.author_name = author_name;
             this.url_sq = url_sq;
-            this.url_l = url_l;
             this.img_thmb = bmp;
             this.commentList = new LinkedList<>();
         }
@@ -101,17 +100,9 @@ public class Model {
             return img_fhd;
         }
 
-        public Bitmap getPicLd(){
-            return img_thmb;
-        }
-
         public Uri getUri() { return uri; }
 
-        public CommentImg[] getComments() {
-            synchronized (commentList) {
-                return commentList.toArray(new CommentImg[commentList.size()]);
-            }
-        }
+        public CommentImg[] getComments() { return commentList.toArray(new CommentImg[commentList.size()]); }
 
         public void setImgFhd(Bitmap img_fhd){
             this.img_fhd = img_fhd;
@@ -119,6 +110,10 @@ public class Model {
 
         public void setImgLd(Bitmap img_thmb){
             this.img_thmb = img_thmb;
+        }
+
+        public void setUrl_l(String url_l){
+            this.url_l = url_l;
         }
 
         public void setUri(Uri uri){

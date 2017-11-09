@@ -137,27 +137,30 @@ public class SearchService extends IntentService {
 
         switch (intent.getAction()) {
             case ACTION_SEARCH_STR:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=%s&text=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SEARCH_LAST:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY);
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY);
                 break;
 
             case ACTION_SEARCH_TOP:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.interestingness.getList&api_key=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY);
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.interestingness.getList&api_key=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY);
                 break;
 
             case ACTION_SEARCH_OWN:
-                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,url_l,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
+                query = String.format("https://api.flickr.com/services/rest?method=flickr.people.getPhotos&api_key=%s&user_id=%s&extras=owner_name,url_sq,description,tags&per_page=50", API_KEY, (String) intent.getSerializableExtra(PARAM_S));
                 break;
 
             case ACTION_SELECTION:
             case ACTION_SELECTION_OWN:
                 try {
                     // Se non è ancora stata scaricata l'immagine Fhd, procedo con il suo scaricamento
-                    if (mvc.model.getResult(mvc.model.getImageSel(), choice).getPicFhd() == null)
+                    if (mvc.model.getResult(mvc.model.getImageSel(), choice).getPicFhd() == null) {
+                        // Se non è ancora stata scaricata l'immagine, nemmeno l'url_l è disponibile quindi lo ricavo
+                        mvc.model.getResult(mvc.model.getImageSel(), choice).setUrl_l(getPhotoSize(mvc.model.getResult(mvc.model.getImageSel(), choice).getId()));
                         downloadImageFhd(mvc.model.getImageSel(), mvc.model.getResult(mvc.model.getImageSel(), choice).getId(), choice);
+                    }
 
                     mvc.model.clearComments(mvc.model.getImageSel(), choice);
                     Iterable<Model.CommentImg> comments = commentsSearch(mvc.model.getResult(mvc.model.getImageSel(), choice).getId());
@@ -177,6 +180,9 @@ public class SearchService extends IntentService {
             case ACTION_SHARE:
             case ACTION_SHARE_OWN:
                 try {
+                    if (mvc.model.getResult(mvc.model.getImageSel(), choice).getUrl_l() == null)
+                        mvc.model.getResult(mvc.model.getImageSel(), choice).setUrl_l(getPhotoSize(mvc.model.getResult(mvc.model.getImageSel(), choice).getId()));
+
                     saveImageFhd( mvc.model.getImageSel(), mvc.model.getResult(mvc.model.getImageSel(), choice ).getId(), choice);
                 }
                 catch (Exception e) {
@@ -278,16 +284,14 @@ public class SearchService extends IntentService {
                 int authorNamePos = xml.indexOf("ownername=", nextPhoto) + 11;
                 int authorIdPos = xml.indexOf("owner=", nextPhoto) + 7;
                 int url_sqPos = xml.indexOf("url_sq=", nextPhoto) + 8;
-                int url_lPos = xml.indexOf("url_l=", nextPhoto) + 7;
 
                 String photoId = xml.substring(idPos, xml.indexOf("\"", idPos + 1));
                 String title = xml.substring(titlePos, xml.indexOf("\"", titlePos + 1));
                 String author_name = xml.substring(authorNamePos, xml.indexOf("\"", authorNamePos + 1));
                 String author_id = xml.substring(authorIdPos, xml.indexOf("\"", authorIdPos + 1));
                 String url_sq = xml.substring(url_sqPos, xml.indexOf("\"", url_sqPos + 1));
-                String url_l = xml.substring(url_lPos, xml.indexOf("\"", url_lPos + 1));
 
-                infos.add(new Model.ImgInfo(photoId, title, author_id, author_name, url_sq, url_l, null));
+                infos.add(new Model.ImgInfo(photoId, title, author_id, author_name, url_sq, null));
                 ++count;
             }
         }
@@ -354,4 +358,78 @@ public class SearchService extends IntentService {
         }
     }
 
+    /**
+     * Metodo a cui viene delegata la ricerca degli url, con diversa definizione, all'immagine selezionata
+     * @param   photoId id della foto di cui vogliamo ottenere gli url
+     * @return  String stringa contenente l'url desiderato con definizione massima 1024
+     */
+    @WorkerThread
+    private String getPhotoSize(String photoId) {
+        String query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.getSizes&api_key=%s&photo_id=%s",
+                API_KEY,
+                photoId);
+        Log.d(TAG, query);
+        try {
+            URL url = new URL(query);
+            URLConnection conn = url.openConnection();
+            String answer = "";
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null)
+                answer += line + "\n";
+
+            in.close();
+
+            return parseSizes(answer);
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.toString());
+            return "";
+        }
+    }
+
+    /**
+     * Metodo a cui viene delegata l'interpretazione della stringa risultato
+     * @param   xml Stringa risultato della ricerca dimensioni dell'immagine da caricare
+     * @return  String stringa contenente l'url desiderato con definizione massima 1024
+     */
+    @WorkerThread
+    private String parseSizes(String xml) {
+
+        String best_url = "https://s.yimg.com/pw/images/en-us/photo_unavailable.png";
+        int best_width = -1;
+        int best_height = -1;
+        int nextSize = -1;
+
+        // Controllo se ci sono stati errori durante la ricerca delle Pics
+        int rspPos = xml.indexOf("<rsp stat=", 0) + 11;
+        String rsp = xml.substring(rspPos, xml.indexOf("\"", rspPos + 1));
+
+        // Log.d(TAG, rspPos + " -> " + rsp + "\n" + xml);
+        // In caso di errori ritorno un link ad una immagine d'errore
+        if (rsp.equalsIgnoreCase("fail"))
+            return best_url;
+
+        do {
+            nextSize = xml.indexOf("<size label", nextSize + 1);
+            if (nextSize >= 0) {
+                int widthPos = xml.indexOf("width=", nextSize) + 7;
+                int heightPos = xml.indexOf("height=", nextSize) + 8;
+                int urlPos = xml.indexOf("source=", nextSize) + 8;
+
+                int width = Integer.parseInt(xml.substring(widthPos, xml.indexOf("\"", widthPos + 1)));
+                int height = Integer.parseInt(xml.substring(heightPos, xml.indexOf("\"", heightPos + 1)));
+                String url = xml.substring(urlPos, xml.indexOf("\"", urlPos + 1));
+
+                if ((best_width < width && best_height < height) && (width <= 1024 && height <= 1024)){
+                    best_width = width;
+                    best_height = height;
+                    best_url = url;
+                }
+            }
+        }
+        while (nextSize != -1);
+        return best_url;
+    }
 }
