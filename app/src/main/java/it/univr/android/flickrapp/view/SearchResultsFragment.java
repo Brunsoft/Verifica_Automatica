@@ -61,9 +61,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        if (savedInstanceState == null)
-            empty_result = false;
     }
 
     @Nullable @Override @UiThread
@@ -79,16 +76,17 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         progr_share = new ProgressDialog(getActivity());
         progr_load_results = (ProgressBar)view.findViewById(R.id.progr_bar_results);
 
+        if (savedInstanceState != null)
+            empty_result = savedInstanceState.getBoolean(TAG + "empty_result");
+        else
+            empty_result = false;
+
         return view;
     }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null)
-            empty_result = savedInstanceState.getBoolean(TAG + "empty_result");
-
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
         // Scaricamento immagini LD terminato

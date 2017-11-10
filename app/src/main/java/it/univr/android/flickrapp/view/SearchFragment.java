@@ -45,7 +45,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private Button search_top;
     private TextView message;
     private boolean empty_results;
-    
+
     @Override @UiThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,9 +55,6 @@ public class SearchFragment extends Fragment implements AbstractFragment {
             setHasOptionsMenu(true);
         else
             setHasOptionsMenu(false);
-
-        if (savedInstanceState == null)
-            empty_results = false;
     }
 
     @Nullable @Override @UiThread
@@ -79,17 +76,20 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last.setOnClickListener(__ -> search(1));        // ricerca delle ultime img caricate
         search_top.setOnClickListener(__ -> search(2));         // ricerca delle img più popolari
 
+        if (savedInstanceState != null) {
+            empty_results = savedInstanceState.getBoolean(TAG + "empty_results");
+            message.setText(savedInstanceState.getString(TAG + "message_results"));
+        } else {
+            empty_results = false;
+            message.setText("");
+        }
+
         return view;
     }
 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            empty_results = savedInstanceState.getBoolean(TAG + "empty_results");
-            message.setText(savedInstanceState.getString(TAG + "message_results"));
-        }
-
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
         onImgLdDownloaded();
     }
@@ -163,7 +163,7 @@ public class SearchFragment extends Fragment implements AbstractFragment {
             search_str.setEnabled(false);
             search_last.setEnabled(false);
             search_top.setEnabled(false);
-            message.setText(null);
+            message.setText("");
             mvc.controller.search(getActivity(), choice, s);
             mvc.controller.showResults();
         }

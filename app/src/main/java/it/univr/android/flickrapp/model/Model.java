@@ -346,6 +346,11 @@ public class Model {
             }
     }
 
+    /**
+     * Metodo per riuscire a capire se le WorkerThreads hanno terminato lo scaricamento delle img_ld
+     * @param   choice se true salvo nella lista result altrimenti nella lista resultAuthor
+     * @return  boolean true se tutte le img_ld sono state scaricate, false alt.
+     */
     public boolean downloadLdCompleted(boolean choice){
         if (choice)
             synchronized (results){

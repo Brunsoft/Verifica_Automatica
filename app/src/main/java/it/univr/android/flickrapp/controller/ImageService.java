@@ -31,7 +31,7 @@ import it.univr.android.flickrapp.view.View;
  */
 public class ImageService extends ExecutorIntentService {
     private final static String TAG = ImageService.class.getName();
-    private final static int num_thread = 4;
+    private final static int num_thread = 10;
     private final static String ACTION_DWN_IMG_FHD = "download_img_fhd";        // is_ld = false
     private final static String ACTION_DWN_IMG_LD = "download_img_ld";          // is_ld = true
     private final static String ACTION_SAVE_IMG_FHD = "save_img_fhd";
