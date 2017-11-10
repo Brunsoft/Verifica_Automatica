@@ -19,18 +19,11 @@ public class SearchResultsAuthorFragment extends SearchResultsFragment {
 
     @Override @UiThread
     public void onResultsChanged() {
-        // switchedView -> true siamo in SearchResultsFragment
+        // switchedView -> false siamo in SearchResultsAuthorFragment
         mvc.controller.setSwitchedView(false);
-        progr_load_results.setMax(mvc.model.getResults(mvc.controller.getSwitchedView()).length);
-
-        if (count_results == -1)
-            count_results = 0;
 
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
-
-        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
-            progr_load_results.setVisibility(View.GONE);
     }
 
     /**

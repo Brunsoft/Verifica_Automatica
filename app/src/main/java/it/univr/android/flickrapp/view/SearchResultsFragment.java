@@ -52,7 +52,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     protected TextView empty_results;
     protected ListView results_list;
     protected ArrayAdapter<ImgInfo> results_adapter;
-    protected int count_results;
     protected boolean empty_result;
     protected ProgressBar progr_load_results;
 
@@ -62,20 +61,16 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (savedInstanceState != null) {
-            count_results = savedInstanceState.getInt(TAG + "count_results");
-            empty_result = savedInstanceState.getBoolean(TAG + "empty_result");
-        }else {
-            count_results = -1;
+
+        if (savedInstanceState == null)
             empty_result = false;
-        }
     }
 
     @Nullable @Override @UiThread
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_results, container, false);
 
-        // controllo della disponibilità di rete
+        // controllo della disponibilità di  rete
         checkNetworkAvailable();
 
         empty_results = (TextView)view.findViewById(R.id.empty_results);
@@ -90,7 +85,15 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null)
+            empty_result = savedInstanceState.getBoolean(TAG + "empty_result");
+
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
+
+        // Scaricamento immagini LD terminato
+        if (mvc.model.downloadLdCompleted(mvc.controller.getSwitchedView()))
+            progr_load_results.setVisibility(View.GONE);
 
         if (mvc.controller.getFirstRun())
             progr_load_results.setVisibility(View.GONE);
@@ -98,23 +101,19 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             progr_load_results.setVisibility(View.VISIBLE);
 
         // Sono stati trovati risultati
-        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length != 0)
+        if (mvc.model.getResults(mvc.controller.getSwitchedView()).length != 0) {
             onResultsChanged();
-
-        // Tutte le immagini scaricate
-        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
             onImgLdDownloaded();
+        }
 
         // Nessun risultato trovato
         if (empty_result)
             onEmptyResult();
-
     }
 
     @Override @UiThread
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(TAG + "count_results", count_results);
         outState.putBoolean(TAG + "empty_result", empty_result);
     }
 
@@ -122,16 +121,9 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     public void onResultsChanged() {
         // switchedView -> true siamo in SearchResultsFragment
         mvc.controller.setSwitchedView(true);
-        progr_load_results.setMax(mvc.model.getResults(mvc.controller.getSwitchedView()).length);
-
-        if (count_results == -1)
-            count_results = 0;
 
         results_adapter = new SearchAdapter(getActivity());
         results_list.setAdapter(results_adapter);
-
-        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
-            progr_load_results.setVisibility(View.GONE);
     }
 
     /**
@@ -153,14 +145,18 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
     @Override @UiThread
     public void onImgLdDownloaded() {
         results_adapter.notifyDataSetChanged();
-        if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length) {
+
+        if (mvc.model.downloadLdCompleted(mvc.controller.getSwitchedView()))
+            progr_load_results.setVisibility(View.GONE);
+
+        /*if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length) {
             count_results++;
             progr_load_results.setProgress(count_results);
         }
         if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
-            progr_load_results.setVisibility(View.GONE);
+            progr_load_results.setVisibility(View.GONE);*/
 
-        Log.d(TAG, "count_results -> " + count_results + " di " + mvc.model.getResults(mvc.controller.getSwitchedView()).length);
+        //Log.d(TAG, "count_results -> " + count_results + " di " + mvc.model.getResults(mvc.controller.getSwitchedView()).length);
     }
 
     @Override @UiThread
@@ -254,7 +250,7 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
                 Log.d("SRF", "Scelta search");
                 if (checkNetworkAvailable()){
                     String author_id = mvc.model.getResult(info.position, true).getAuthor_id();
-                    // switchedView -> false siamo in SearchResultsAuthorFragment
+                    // switchedView -> false andremo in SearchResultsAuthorFragment
                     mvc.controller.setSwitchedView(false);
                     mvc.controller.search(getActivity(), 3, author_id);
                     mvc.controller.showResultsAuthor();
@@ -291,7 +287,8 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
             ((TextView) row.findViewById(R.id.author_name)).setText(imgInfo.getAuthor_name());
 
             // aggiungo il Listener solamente quando ho completato il caricamento di tutte le anteprime
-            if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
+            // Log.d(TAG, "count_results -> " + count_results);
+            if (mvc.model.downloadLdCompleted(mvc.controller.getSwitchedView()))
                 if (mvc.controller.getSwitchedView())
                     row.setOnClickListener(__ -> viewImageSel(position));
                 else

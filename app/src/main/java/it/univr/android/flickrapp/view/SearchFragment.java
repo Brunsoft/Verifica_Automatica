@@ -44,7 +44,6 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     private Button search_last;
     private Button search_top;
     private TextView message;
-    private int count_results;
     private boolean empty_results;
     
     @Override @UiThread
@@ -57,13 +56,8 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         else
             setHasOptionsMenu(false);
 
-        if (savedInstanceState != null) {
-            empty_results = savedInstanceState.getBoolean(TAG + "empty_results");
-            count_results = savedInstanceState.getInt(TAG + "count_results");
-        } else {
+        if (savedInstanceState == null)
             empty_results = false;
-            count_results = -1;
-        }
     }
 
     @Nullable @Override @UiThread
@@ -80,7 +74,6 @@ public class SearchFragment extends Fragment implements AbstractFragment {
         search_last = (Button) view.findViewById(R.id.search_last);
         search_top = (Button) view.findViewById(R.id.search_top);
         message = (TextView) view.findViewById(R.id.title);
-        count_results = 0;
 
         search_str.setOnClickListener(__ -> search(0));         // ricerca delle img per stringa
         search_last.setOnClickListener(__ -> search(1));        // ricerca delle ultime img caricate
@@ -92,6 +85,11 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            empty_results = savedInstanceState.getBoolean(TAG + "empty_results");
+            message.setText(savedInstanceState.getString(TAG + "message_results"));
+        }
+
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
         onImgLdDownloaded();
     }
@@ -99,14 +97,17 @@ public class SearchFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(TAG + "count_results", count_results);
         outState.putBoolean(TAG + "empty_results", empty_results);
+        try {
+            outState.putString(TAG + "message_results", message.getText().toString());
+        } catch (NullPointerException e){
+            outState.putString(TAG + "message_results", "");
+            Log.e(TAG, e.toString());
+        }
     }
 
     @Override @UiThread
     public void onResultsChanged() {
-        if (count_results == -1)
-            count_results = 0;
         empty_results = false;
     }
 
@@ -123,10 +124,8 @@ public class SearchFragment extends Fragment implements AbstractFragment {
 
     @Override @UiThread
     public void onImgLdDownloaded() {
-        if (count_results != mvc.model.getResults(true).length)
-            count_results++;
 
-        if (empty_results || count_results == mvc.model.getResults(true).length){
+        if (empty_results || mvc.model.downloadLdCompleted(true)){
             search_str.setEnabled(true);
             search_last.setEnabled(true);
             search_top.setEnabled(true);

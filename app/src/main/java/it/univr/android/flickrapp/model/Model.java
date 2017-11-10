@@ -346,4 +346,29 @@ public class Model {
             }
     }
 
+    public boolean downloadLdCompleted(boolean choice){
+        if (choice)
+            synchronized (results){
+                int i = 0;
+                for (ImgInfo img : results) {
+                    if (img.getThmb() != null)
+                        i++;
+                }
+                if (i == results.size())
+                    return true;
+            }
+        else
+            synchronized (resultsAuthor){
+                int i = 0;
+                for (ImgInfo img : resultsAuthor) {
+                    if (img.getThmb() != null)
+                        i++;
+                }
+                if (i == resultsAuthor.size())
+                    return true;
+            }
+
+        return false;
+    }
+
 }

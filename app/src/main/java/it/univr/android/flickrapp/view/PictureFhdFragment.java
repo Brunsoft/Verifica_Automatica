@@ -63,9 +63,8 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (savedInstanceState != null)
-            empty_comments = savedInstanceState.getBoolean(TAG + "empty_comments");
-        else
+
+        if (savedInstanceState == null)
             empty_comments = false;
     }
 
@@ -90,6 +89,9 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null)
+            empty_comments = savedInstanceState.getBoolean(TAG + "empty_comments");
+
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
         progr_load_content.setVisibility(View.VISIBLE);
