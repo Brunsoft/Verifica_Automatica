@@ -89,10 +89,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         super.onActivityCreated(savedInstanceState);
         mvc = ((FlickrApplication) getActivity().getApplication()).getMVC();
 
-        // Scaricamento immagini LD terminato
-        if (mvc.model.downloadLdCompleted(mvc.controller.getSwitchedView()))
-            progr_load_results.setVisibility(View.GONE);
-
         if (mvc.controller.getFirstRun())
             progr_load_results.setVisibility(View.GONE);
         else
@@ -147,14 +143,6 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
         if (mvc.model.downloadLdCompleted(mvc.controller.getSwitchedView()))
             progr_load_results.setVisibility(View.GONE);
 
-        /*if (count_results != mvc.model.getResults(mvc.controller.getSwitchedView()).length) {
-            count_results++;
-            progr_load_results.setProgress(count_results);
-        }
-        if (count_results == mvc.model.getResults(mvc.controller.getSwitchedView()).length)
-            progr_load_results.setVisibility(View.GONE);*/
-
-        //Log.d(TAG, "count_results -> " + count_results + " di " + mvc.model.getResults(mvc.controller.getSwitchedView()).length);
     }
 
     @Override @UiThread

@@ -9,7 +9,7 @@
     <string name="error_empty_field">Inserimento non valido</string>
     <string name="empty_results">Nessuna immagine trovata</string>
     <string name="empty_comments">Nessun commento trovato</string>
-    <string name="app_date">Agosto 2017</string>
+    <string name="app_date">Novembre 2017</string>
     <string name="app_version">Versione 1.0</string>
     <string name="network_warning">Nessuna connessione disponibile</string>
     <string name="storage_permission_denied">Permesso negato in lettura e scrittura sulla memoria esterna</string>
