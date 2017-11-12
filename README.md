@@ -43,6 +43,7 @@ Scelte Implementative
 - Le specifiche di progetto indicano di scaricare l'immagine in alta risoluzione, che è ritornata dal link ricavato dalle API Flickr tramite campo *extra=url_l*. E' comunque possibile che non sia disponibile questa risoluzione, per questo motivo abbiamo deciso di ricercare, tramite la funzione **flickr.photos.getSizes**, tutte le risoluzioni disponibili della singola immagine selezionata. Fatto ciò andiamo a visualizzare l'immagine con qualità più alta ma comunque non superiore a 1024px sul lato lungo. Abbiamo inoltre notato che durante la ricerca vengano restituite, tra i  risultati, delle immagini non più disponibili ma con titolo e autore settati, il link a tale immagine quindi non esiste e per evitare errori è stato sostituito con uno statico quale [link][imgunv].
 
 [imgunv]: https://s.yimg.com/pw/images/en-us/photo_unavailable.png
+
 Autori
 -------------
 
