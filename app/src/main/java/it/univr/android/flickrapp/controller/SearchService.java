@@ -313,6 +313,8 @@ public class SearchService extends IntentService {
         int nextComment = -1;
         do {
             nextComment = xml.indexOf("<comment id", nextComment + 1);
+
+            // Le API Flickr non permettono di limitare i commenti ritornati dalla richiesta flickr.photos.comments, li limitiamo manualmente agli ultimi 50
             if (nextComment >= 0) {
                 int authornamePos = xml.indexOf("authorname=", nextComment) + 12;
                 int commentPos = xml.indexOf("\">", nextComment) + 2;
@@ -322,8 +324,8 @@ public class SearchService extends IntentService {
                 ++count;
             }
         }
-        while (nextComment != -1);
-        Log.d(TAG, "Commenti trovati: " + count);
+        while (nextComment != -1 && count < 50);
+        Log.d(TAG, "Commenti stampati: " + count);
         return comments;
     }
 
@@ -334,7 +336,8 @@ public class SearchService extends IntentService {
      */
     @WorkerThread
     private Iterable<Model.CommentImg> commentsSearch(String photoId) {
-        String query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.comments.getList&api_key=%s&photo_id=%s",
+        // sort=date-posted-desc -> Ordine LIFO, ordine inverso di inserimento
+        String query = String.format("https://api.flickr.com/services/rest?method=flickr.photos.comments.getList&api_key=%s&photo_id=%s&sort=date-posted-desc",
                 API_KEY,
                 photoId);
         Log.d(TAG, query);
