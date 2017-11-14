@@ -110,10 +110,12 @@ public class TabletView extends LinearLayout implements View {
      */
     @Override
     public void showResults() {
-        /* Per evitare errori di visualizzazione, ad una nuova invocazione di showResults(), torniamo alla
-         * visualizzazione di risulati relativi alla ricerca precedente (fragment identificata da "showResults")
-         */
-        getFragmentManager().popBackStack("showResults", getFragmentManager().POP_BACK_STACK_INCLUSIVE);
+        /* PopBackStack(nul,...) -> Svuoto tutto il BackStack che conteneva tutte le vecchie fragment.
+        * In questo modo l'utente, dopo la prima ricerca e successiva navigazione nei risultati di ricerca, se esegue un
+        * ulteriore ricerca, non riuscirà a tornare indietro alle vecchie fragment che contenevano i vecchi risultati di
+        * ricerca, ormai sovrascritti con quelli correnti. */
+
+        getFragmentManager().popBackStack(null, getFragmentManager().POP_BACK_STACK_INCLUSIVE);
         getFragmentManager().beginTransaction()
                 .replace(R.id.results_fragment, new SearchResultsFragment())
                 .addToBackStack("showResults")
