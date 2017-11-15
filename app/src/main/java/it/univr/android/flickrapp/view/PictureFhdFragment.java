@@ -200,15 +200,20 @@ public class PictureFhdFragment extends Fragment implements AbstractFragment {
     @Override @UiThread
     public void onImgFhdSaved() {
         progr_share.dismiss();
-        Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
-        Log.d("IMG Uri: ", uri.toString());
+        try {
+            Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
+            Log.d("IMG Uri: ", uri.toString());
 
-        Intent intent = new Intent().setAction(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
+            Intent intent = new Intent().setAction(Intent.ACTION_SEND);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_TEXT, getResources().getText(R.string.share_mess));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, getResources().getText(R.string.share_title)));
+        }
+        catch (Exception e){
+            Log.e(TAG, e.toString());
+        }
     }
 
     /**

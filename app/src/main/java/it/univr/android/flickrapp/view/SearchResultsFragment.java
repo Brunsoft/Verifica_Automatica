@@ -154,8 +154,8 @@ public class SearchResultsFragment extends Fragment implements AbstractFragment 
      */
     @Override @UiThread
     public void onImgFhdSaved() {
+        progr_share.dismiss();
         try {
-            progr_share.dismiss();
             Uri uri = mvc.model.getResult(mvc.model.getImageSel(), mvc.controller.getSwitchedView()).getUri();
             Log.d("IMG Uri: ", uri.toString());
 
